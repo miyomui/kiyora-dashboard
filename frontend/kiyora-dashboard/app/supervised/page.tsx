@@ -55,7 +55,8 @@ export default function SupervisedPage() {
         gender: parseInt(formData.gender)
       };
 
-      const response = await fetch("http://127.0.0.1:8001/predict", {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8001";
+      const response = await fetch(`${apiUrl}/predict`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
