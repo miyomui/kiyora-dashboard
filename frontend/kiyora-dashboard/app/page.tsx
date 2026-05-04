@@ -1,4 +1,5 @@
 "use client";
+// Version: 1.0.1 - Reverted to Stable Version
 
 import { motion } from "framer-motion";
 import Link from "next/link";
