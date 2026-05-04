@@ -27,9 +27,24 @@ const staggerContainer = {
 };
 
 const teamMembers = [
-  { name: "ลลิตวดี", role: "Machine Learning Engineer / Backend Developer", desc: "ดูแลด้านโมเดลและการเชื่อมต่อข้อมูล" },
-  { name: "แพท", role: "Business Analyst / Data Engineer", desc: "วิเคราะห์ข้อมูลเชิงลึกและโครงสร้างข้อมูล" },
-  { name: "เนย", role: "Frontend / Dashboard Developer", desc: "ออกแบบและพัฒนาหน้าจอการแสดงผล" },
+  { 
+    name: "ลลิตวดี", 
+    role: "Machine Learning Engineer / Backend Developer", 
+    desc: "ดูแลด้านโมเดลและการเชื่อมต่อข้อมูล",
+    image: "/team/lalitwadee.jpg"
+  },
+  { 
+    name: "แพท", 
+    role: "Business Analyst / Data Engineer", 
+    desc: "วิเคราะห์ข้อมูลเชิงลึกและโครงสร้างข้อมูล",
+    image: null
+  },
+  { 
+    name: "เนย", 
+    role: "Frontend / Dashboard Developer", 
+    desc: "ออกแบบและพัฒนาหน้าจอการแสดงผล",
+    image: "/team/noey.jpg"
+  },
 ];
 
 export default function Home() {
@@ -122,7 +137,15 @@ export default function Home() {
               variants={fadeIn}
             >
               <div className="mb-6 h-28 w-28 rounded-[2rem] bg-rose-50 overflow-hidden flex items-center justify-center border-4 border-white shadow-inner group-hover:scale-105 transition-transform">
-                <Users className="h-12 w-12 text-rose-200" />
+                {member.image ? (
+                  <img 
+                    src={member.image} 
+                    alt={member.name} 
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <Users className="h-12 w-12 text-rose-200" />
+                )}
               </div>
               <h3 className="text-xl font-bold text-slate-800">{member.name}</h3>
               <p className="text-rose-400 text-sm font-bold mb-4">{member.role}</p>

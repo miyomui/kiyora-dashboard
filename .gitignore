@@ -173,4 +173,9 @@ desktop.ini
 # Project specific
 data/*.csv
 !data/clean.csv
-# We keep clean.csv as it's needed for the app, but ignore others if they are large
+visualizations/
+scratch/
+.agent/
+.gemini/
+.DS_Store
+*.log
