@@ -81,31 +81,96 @@ export default function Home() {
         <div className="absolute bottom-0 right-0 -mr-10 -mb-10 h-64 w-64 rounded-full bg-teal-200 opacity-30 blur-2xl" />
       </motion.section>
 
-      {/* System Architecture */}
-      <section className="space-y-10">
+      {/* System Architecture Diagram */}
+      <section className="space-y-12">
         <div className="text-center">
-          <h2 className="text-3xl font-bold text-slate-800">โครงสร้างระบบ</h2>
-          <p className="mt-2 text-slate-400 font-medium">การทำงานเบื้องหลังของระบบวิเคราะห์ Kiyora</p>
+          <h2 className="text-3xl font-bold text-slate-800">โครงสร้างสถาปัตยกรรมระบบ</h2>
+          <p className="mt-2 text-slate-400 font-medium">การเชื่อมต่อข้อมูลและการทำงานของ AI แบบครบวงจร</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
-          {[
-            { icon: Database, title: "ฐานข้อมูล", desc: "ข้อมูลจากการสำรวจตลาด", color: "text-rose-400", bg: "bg-rose-50" },
-            { icon: Cpu, title: "ระบบประมวลผล", desc: "โมเดล AI และ API", color: "text-teal-500", bg: "bg-teal-50" },
-            { icon: Layout, title: "ส่วนแสดงผล", desc: "หน้าจอแดชบอร์ดอัจฉริยะ", color: "text-blue-400", bg: "bg-blue-50" }
-          ].map((item, idx) => (
+        <div className="relative max-w-5xl mx-auto">
+          {/* Connection Lines (Desktop) */}
+          <div className="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-gradient-to-r from-rose-200 via-teal-200 to-rose-200 -translate-y-1/2 -z-10 opacity-50" />
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+            {/* Step 1: Data Source */}
             <motion.div 
-              key={idx}
-              className="flex flex-col items-center p-10 rounded-[2.5rem] bg-white border border-rose-50 shadow-sm hover:shadow-md transition-shadow"
-              {...fadeIn}
+              className="flex flex-col items-center group"
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
             >
-              <div className={`${item.bg} p-5 rounded-2xl mb-6`}>
-                <item.icon className={`h-8 w-8 ${item.color}`} />
+              <div className="relative">
+                <div className="absolute -inset-4 bg-rose-100 rounded-[2.5rem] blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="relative bg-white p-8 rounded-[2.5rem] border border-rose-100 shadow-sm flex flex-col items-center text-center w-full min-h-[280px] justify-center">
+                  <div className="bg-rose-50 p-4 rounded-2xl mb-6">
+                    <Database className="h-8 w-8 text-rose-400" />
+                  </div>
+                  <h3 className="font-bold text-slate-800 text-lg">ฐานข้อมูล (Data)</h3>
+                  <p className="text-xs text-slate-400 mt-3 font-medium leading-relaxed">
+                    ข้อมูลจากการสำรวจกลุ่มตัวอย่าง<br/>
+                    และปัจจัยที่มีผลต่อการตัดสินใจ<br/>
+                    ถูกจัดเก็บในรูปแบบ CSV/Clean Data
+                  </p>
+                  <div className="mt-4 px-3 py-1 bg-rose-50 rounded-full text-[10px] font-bold text-rose-400 uppercase tracking-tighter">Layer 01</div>
+                </div>
               </div>
-              <h3 className="text-lg font-bold text-slate-800">{item.title}</h3>
-              <p className="text-sm text-slate-400 text-center mt-2 font-medium">{item.desc}</p>
             </motion.div>
-          ))}
+
+            {/* Step 2: AI Engine (Center) */}
+            <motion.div 
+              className="flex flex-col items-center group"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+            >
+              <div className="relative scale-110 md:scale-125 z-20">
+                <div className="absolute -inset-6 bg-teal-100 rounded-[2.5rem] blur-2xl opacity-40 animate-pulse" />
+                <div className="relative bg-white p-8 rounded-[2.5rem] border-2 border-teal-200 shadow-xl flex flex-col items-center text-center w-full min-h-[280px] justify-center">
+                  <div className="bg-teal-50 p-4 rounded-2xl mb-6 shadow-inner">
+                    <Cpu className="h-8 w-8 text-teal-500" />
+                  </div>
+                  <h3 className="font-bold text-slate-800 text-lg">ระบบประมวลผล (API)</h3>
+                  <p className="text-xs text-teal-600/70 mt-3 font-bold leading-relaxed">
+                    Logistic Regression Model<br/>
+                    รันบน FastAPI Server<br/>
+                    ประมวลผลการทำนายผลทันที
+                  </p>
+                  <div className="mt-4 px-3 py-1 bg-teal-500 rounded-full text-[10px] font-bold text-white uppercase tracking-tighter shadow-md shadow-teal-100">Brain Layer</div>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Step 3: Intelligence Dashboard */}
+            <motion.div 
+              className="flex flex-col items-center group"
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.4 }}
+            >
+              <div className="relative">
+                <div className="absolute -inset-4 bg-blue-100 rounded-[2.5rem] blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="relative bg-white p-8 rounded-[2.5rem] border border-blue-100 shadow-sm flex flex-col items-center text-center w-full min-h-[280px] justify-center">
+                  <div className="bg-blue-50 p-4 rounded-2xl mb-6">
+                    <Layout className="h-8 w-8 text-blue-400" />
+                  </div>
+                  <h3 className="font-bold text-slate-800 text-lg">แดชบอร์ด (UX/UI)</h3>
+                  <p className="text-xs text-slate-400 mt-3 font-medium leading-relaxed">
+                    แสดงผลผ่าน Next.js<br/>
+                    แบบ Real-time Dashboard<br/>
+                    แปลข้อมูล AI เป็นภาษาที่เข้าใจง่าย
+                  </p>
+                  <div className="mt-4 px-3 py-1 bg-blue-50 rounded-full text-[10px] font-bold text-blue-400 uppercase tracking-tighter">Layer 03</div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+          
+          {/* Animated Flow Particles (Optional/Conceptual) */}
+          <div className="hidden md:block absolute top-1/2 left-1/3 w-2 h-2 bg-teal-400 rounded-full -translate-y-1/2 animate-ping" />
+          <div className="hidden md:block absolute top-1/2 right-1/3 w-2 h-2 bg-teal-400 rounded-full -translate-y-1/2 animate-ping" />
         </div>
       </section>
 
