@@ -1,56 +1,142 @@
-# Kiyora Brand Analysis & Dashboard
+# Kiyora Brand Analysis — AI-Driven Marketing System
 
-ระบบวิเคราะห์ข้อมูลและแดชบอร์ดอัจฉริยะสำหรับแบรนด์ **Kiyora** พัฒนาด้วย Machine Learning เพื่อช่วยทำนายพฤติกรรมลูกค้าและให้ข้อมูลเชิงลึกทางธุรกิจ ในรูปแบบที่สวยงาม ทันสมัย และใช้งานง่าย (Pastel Thai Edition)
-
-## 🌟 ฟีเจอร์หลัก (Key Features)
-
-- **หน้าหลัก (Home)**: แนะนำระบบ ข้อมูลทีมผู้พัฒนา และโครงสร้างสถาปัตยกรรมของระบบ
-- **การทำนายผล (Supervised Learning)**: ระบบทำนายว่าผู้ใช้งานมีโอกาสเป็นลูกค้าของแบรนด์ Kiyora หรือไม่ โดยวิเคราะห์จากสภาพผิว พฤติกรรมการซื้อ และปัจจัยอื่นๆ
-- **การจัดกลุ่มลูกค้า (Unsupervised Learning)**: ระบบแบ่งกลุ่มลูกค้า (Customer Segmentation) เพื่อช่วยให้แบรนด์เข้าใจกลุ่มเป้าหมายได้ชัดเจนขึ้น
-- **ข้อมูลเชิงลึก (Business Insights)**: วิเคราะห์แนวโน้มตลาดและความรู้สึกของผู้บริโภค พร้อมข้อเสนอแนะเชิงกลยุทธ์จาก AI
-
-## 🛠️ เทคโนโลยีที่ใช้ (Tech Stack)
-
-- **Frontend**: Next.js 14 (App Router), Tailwind CSS, Framer Motion
-- **Backend API**: FastAPI (Python)
-- **Machine Learning**: Scikit-learn (Logistic Regression)
-- **Design**: Minimal Pastel Theme with Kanit Font
-
-## 🚀 การติดตั้งและใช้งาน (Setup & Usage)
-
-### 1. การเตรียมระบบ Backend (API)
-1. ติดตั้ง Library ที่จำเป็น:
-   ```bash
-   pip install -r requirements.txt
-   ```
-2. รัน API Server:
-   ```bash
-   uvicorn api.main:app --reload --port 8001
-   ```
-
-### 2. การเตรียมระบบ Frontend (Dashboard)
-1. เข้าไปที่โฟลเดอร์แดชบอร์ด:
-   ```bash
-   cd frontend/kiyora-dashboard
-   ```
-2. ติดตั้ง Dependencies:
-   ```bash
-   npm install
-   ```
-3. รันหน้าเว็บ (Development Mode):
-   ```bash
-   npm run dev
-   ```
-4. เปิดเบราว์เซอร์ไปที่ `http://localhost:3000`
-
-## 📂 โครงสร้างโปรเจกต์ (Project Structure)
-
-- `api/`: ระบบ Backend สำหรับประมวลผลโมเดล
-- `frontend/kiyora-dashboard/`: โค้ดส่วนหน้าจอแดชบอร์ด (Next.js)
-- `models/`: ไฟล์โมเดลที่ฝึกสอนแล้ว (`.pkl`)
-- `src/`: โค้ดหลักสำหรับการประมวลผลข้อมูลและโมเดล
-- `data/`: ข้อมูลที่ใช้ในโปรเจกต์
-- `notebook/`: Jupyter Notebook สำหรับการวิเคราะห์ข้อมูลเบื้องต้น
+ระบบวิเคราะห์การตลาดอัจฉริยะสำหรับแบรนด์ **Kiyora** พัฒนาด้วยเทคนิค Machine Learning ครบวงจร (End-to-End AI System) ตามข้อกำหนดโครงการ AIE 324-325
 
 ---
-**พัฒนาโดย**: ทีม Kiyora Analysis
+
+## 🌟 ฟีเจอร์หลัก
+
+| หน้า | คำอธิบาย |
+|---|---|
+| **Home** | แนะนำระบบ, System Architecture Diagram, ทีมผู้พัฒนา |
+| **Supervised Learning** | ทำนายว่าลูกค้าจะเลือกใช้ Kiyora หรือไม่ + เปรียบเทียบ 5 โมเดล |
+| **Unsupervised Learning** | K-Means Clustering แบ่ง Customer Persona 3 กลุ่ม + PCA Visualization |
+| **Business Insights** | สรุปข้อมูลเชิงลึกและข้อเสนอแนะเชิงกลยุทธ์ |
+
+---
+
+## 🛠️ Tech Stack
+
+**Backend**
+- Python 3.x
+- FastAPI + Uvicorn
+- Scikit-learn (Logistic Regression, SVM, Random Forest, Decision Tree, KNN)
+- Pandas, Joblib
+
+**Frontend**
+- Next.js 16 (App Router)
+- Tailwind CSS v4
+- Framer Motion
+- Lucide React
+
+**Deployment**
+- Backend: [Render](https://render.com)
+- Frontend: [Vercel](https://vercel.com)
+
+---
+
+## 📂 โครงสร้างโปรเจกต์
+
+```
+kiyora-dashboard/
+├── api/
+│   └── main.py                    # FastAPI endpoints
+├── src/
+│   ├── supervised_train.py        # ฝึกสอนโมเดลทั้ง 5 ตัว
+│   ├── supervised_evaluate.py     # เปรียบเทียบประสิทธิภาพโมเดล
+│   ├── model_comparison.py        # ฟังก์ชันสำหรับ /model-comparison API
+│   ├── predict.py                 # ฟังก์ชันทำนายผล (ใช้กับ API)
+│   ├── process_data.py            # เตรียมและทำความสะอาดข้อมูล
+│   └── unsupervised.py            # K-Means + PCA
+├── models/
+│   ├── logistic_regression.pkl    # โมเดลหลัก (ใช้กับ API)
+│   ├── svm.pkl
+│   ├── random_forest.pkl
+│   ├── decision_tree.pkl
+│   └── knn.pkl
+├── data/
+│   └── clean.csv                  # ข้อมูลที่ผ่านการเตรียมแล้ว
+├── frontend/
+│   └── kiyora-dashboard/          # Next.js App
+└── requirements.txt
+```
+
+---
+
+## 🚀 วิธีรันในเครื่อง
+
+### 1. Backend (FastAPI)
+
+```bash
+# ติดตั้ง dependencies
+pip install -r requirements.txt
+
+# (ถ้ายังไม่มีไฟล์โมเดล) ฝึกสอนโมเดลก่อน
+python src/supervised_train.py
+
+# รัน API server ที่ port 8001
+uvicorn api.main:app --reload --port 8001
+```
+
+### 2. Frontend (Next.js)
+
+```bash
+cd frontend/kiyora-dashboard
+
+# ติดตั้ง dependencies
+npm install
+
+# สร้างไฟล์ .env.local และกำหนด API URL
+echo "NEXT_PUBLIC_API_URL=http://127.0.0.1:8001" > .env.local
+
+# รันในโหมด Development
+npm run dev
+```
+
+เปิดเบราว์เซอร์ที่ `http://localhost:3000`
+
+---
+
+## 🤖 ML Pipeline
+
+```
+clean.csv
+    ↓  Train/Test Split (80/20, stratified)
+    ↓  supervised_train.py
+    ├── logistic_regression.pkl  ← โมเดลหลัก (Recall สูงสุดสำหรับ Imbalanced Data)
+    ├── svm.pkl
+    ├── random_forest.pkl
+    ├── decision_tree.pkl
+    └── knn.pkl
+         ↓  supervised_evaluate.py
+         └── ตารางเปรียบเทียบ Accuracy / Precision / Recall / F1
+```
+
+### เหตุผลในการเลือก Logistic Regression
+
+ข้อมูลมีความไม่สมดุล (Class 0: 72 ตัวอย่าง vs Class 1: 10 ตัวอย่าง) จึงใช้ `class_weight="balanced"` และเลือกโมเดลที่ให้ค่า **Recall สูงสุด** เพื่อไม่พลาดลูกค้ากลุ่มเป้าหมาย
+
+---
+
+## 📡 API Endpoints
+
+| Method | Endpoint | คำอธิบาย |
+|---|---|---|
+| `GET` | `/` | Health check |
+| `POST` | `/predict` | ทำนายว่าลูกค้าจะเลือก Kiyora |
+| `GET` | `/model-comparison` | ผลเปรียบเทียบโมเดลทั้ง 5 ตัว (จาก .pkl จริง) |
+
+---
+
+## 👥 ทีมผู้พัฒนา
+
+| ชื่อ | บทบาท |
+|---|---|
+| ลลิตวดี | Machine Learning Engineer / Backend Developer |
+| แพท | Business Analyst / Data Engineer |
+| เนย | Frontend / Dashboard Developer |
+
+---
+
+**โครงการ**: AIE 324-325 — AI-Driven Marketing Campaign System  
+**สถาบัน**: Bangkok University
