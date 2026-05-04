@@ -39,6 +39,18 @@ interface ModelData {
   models: ModelRow[];
 }
 
+// Fallback: real values from supervised_evaluate.py (used when API is unavailable)
+const FALLBACK_DATA: ModelData = {
+  testSize: 17,
+  models: [
+    { name: "Logistic Regression", accuracy: 0.7647, precision: 0.25,   recall: 0.50, f1: 0.3333, selected: true  },
+    { name: "SVM",                 accuracy: 0.8235, precision: 0.3333, recall: 0.50, f1: 0.40,   selected: false },
+    { name: "Random Forest",       accuracy: 0.8235, precision: 0.00,   recall: 0.00, f1: 0.00,   selected: false },
+    { name: "Decision Tree",       accuracy: 0.7647, precision: 0.00,   recall: 0.00, f1: 0.00,   selected: false },
+    { name: "KNN",                 accuracy: 0.8824, precision: 0.00,   recall: 0.00, f1: 0.00,   selected: false },
+  ],
+};
+
 // ── Page Component ────────────────────────────────────────────────────────────
 export default function SupervisedPage() {
   // Prediction form state
@@ -55,11 +67,12 @@ export default function SupervisedPage() {
     acne_score: 3,
   });
 
-  // Model comparison state
-  const [modelData, setModelData] = useState<ModelData | null>(null);
+  // Model comparison state — starts with fallback, upgrades from API if available
+  const [modelData, setModelData] = useState<ModelData>(FALLBACK_DATA);
   const [loadingComp, setLoadingComp] = useState(true);
+  const [usingFallback, setUsingFallback] = useState(false);
 
-  // Fetch model comparison from API on mount
+  // Try to fetch live data from API; fall back to static data if unavailable
   useEffect(() => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8001";
     fetch(`${apiUrl}/model-comparison`)
@@ -67,8 +80,14 @@ export default function SupervisedPage() {
         if (!r.ok) throw new Error("API error");
         return r.json();
       })
-      .then((data: ModelData) => setModelData(data))
-      .catch(() => setModelData(null))
+      .then((data: ModelData) => {
+        setModelData(data);
+        setUsingFallback(false);
+      })
+      .catch(() => {
+        setModelData(FALLBACK_DATA);
+        setUsingFallback(true);
+      })
       .finally(() => setLoadingComp(false));
   }, []);
 
@@ -305,37 +324,33 @@ export default function SupervisedPage() {
 
       {/* Model Comparison Table */}
       <section className="space-y-6">
-        <div>
-          <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-            <BarChart3 className="h-7 w-7 text-rose-400" />
-            การเปรียบเทียบประสิทธิภาพโมเดล
-          </h2>
-          <p className="mt-1 text-slate-400 font-medium text-sm">
-            {modelData?.testSize
-              ? `ทดสอบบน Test Set (20%) — ${modelData.testSize} ตัวอย่าง`
-              : "ทดสอบบน Test Set (20%)"}
-          </p>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
+              <BarChart3 className="h-7 w-7 text-rose-400" />
+              การเปรียบเทียบประสิทธิภาพโมเดล
+            </h2>
+            <p className="mt-1 text-slate-400 font-medium text-sm">
+              {`ทดสอบบน Test Set (20%) — ${modelData.testSize} ตัวอย่าง`}
+            </p>
+          </div>
+          {!loadingComp && usingFallback && (
+            <span className="bg-amber-50 text-amber-600 border border-amber-100 text-xs font-bold px-3 py-1.5 rounded-full">
+              ข้อมูลสถิต (API ไม่ตอบสนอง)
+            </span>
+          )}
         </div>
 
         {/* Loading state */}
         {loadingComp && (
           <div className="bg-white rounded-[2rem] border border-rose-50 shadow-xl p-16 flex items-center justify-center gap-3 text-slate-400">
             <Loader2 className="h-6 w-6 animate-spin" />
-            <span className="font-medium text-sm">กำลังโหลดข้อมูลโมเดลจาก API...</span>
+            <span className="font-medium text-sm">กำลังตรวจสอบข้อมูลจาก API...</span>
           </div>
         )}
 
-        {/* API failed state */}
-        {!loadingComp && !modelData && (
-          <div className="bg-rose-50 rounded-[2rem] border border-rose-100 p-10 text-center space-y-3">
-            <AlertCircle className="h-10 w-10 text-rose-300 mx-auto" />
-            <p className="font-bold text-rose-600 text-sm">ไม่สามารถเชื่อมต่อ API ได้</p>
-            <p className="text-rose-400 text-xs font-medium">ตรวจสอบให้แน่ใจว่า Backend กำลังทำงานอยู่</p>
-          </div>
-        )}
-
-        {/* Table — only when data is ready */}
-        {!loadingComp && modelData && (
+        {/* Table — always visible (fallback or live) */}
+        {!loadingComp && (
           <div className="bg-white rounded-[2rem] border border-rose-50 shadow-xl overflow-hidden">
             <div className="grid grid-cols-5 bg-rose-50/60 border-b border-rose-100 px-6 py-4">
               {["โมเดล", "Accuracy", "Precision", "Recall", "F1-Score"].map((h, i) => (
