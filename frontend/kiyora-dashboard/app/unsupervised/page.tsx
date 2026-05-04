@@ -52,36 +52,36 @@ export default function UnsupervisedPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
         {/* Segmentation Preview */}
-        <section className="bg-white p-10 rounded-[3rem] border border-rose-50 shadow-xl opacity-60">
+        <section className="bg-white p-6 sm:p-10 rounded-[2rem] sm:rounded-[3rem] border border-rose-50 shadow-xl opacity-60">
           <h2 className="text-xl font-bold text-slate-800 mb-8 flex items-center gap-2">
             <PieChart className="h-5 w-5 text-rose-400" />
             สัดส่วนกลุ่มลูกค้า
           </h2>
-          <div className="aspect-square bg-rose-50/30 rounded-[2.5rem] flex items-center justify-center border-2 border-dashed border-rose-100">
+          <div className="aspect-square bg-rose-50/30 rounded-[2rem] flex items-center justify-center border-2 border-dashed border-rose-100">
             <div className="text-center">
               <PieChart className="h-16 w-16 text-rose-200 mx-auto mb-4" />
-              <p className="text-rose-300 font-bold">แบบร่างกราฟ</p>
+              <p className="text-rose-300 font-bold text-sm">แบบร่างกราฟ</p>
             </div>
           </div>
         </section>
 
         {/* Feature Importance Preview */}
-        <section className="bg-white p-10 rounded-[3rem] border border-rose-50 shadow-xl opacity-60">
+        <section className="bg-white p-6 sm:p-10 rounded-[2rem] sm:rounded-[3rem] border border-rose-50 shadow-xl opacity-60">
           <h2 className="text-xl font-bold text-slate-800 mb-8 flex items-center gap-2">
             <ScatterChart className="h-5 w-5 text-rose-400" />
             การกระจายตัวของกลุ่ม (PCA)
           </h2>
-          <div className="aspect-square bg-rose-50/30 rounded-[2.5rem] flex items-center justify-center border-2 border-dashed border-rose-100">
+          <div className="aspect-square bg-rose-50/30 rounded-[2rem] flex items-center justify-center border-2 border-dashed border-rose-100">
             <div className="text-center">
               <MousePointer2 className="h-16 w-16 text-rose-200 mx-auto mb-4" />
-              <p className="text-rose-300 font-bold">แบบร่างการกระจายตัว</p>
+              <p className="text-rose-300 font-bold text-sm">แบบร่างการกระจายตัว</p>
             </div>
           </div>
         </section>
       </div>
 
       {/* Draft Notes */}
-      <section className="bg-rose-50/50 p-10 rounded-[3rem] border border-rose-100">
+      <section className="bg-rose-50/50 p-6 sm:p-10 rounded-[2rem] sm:rounded-[3rem] border border-rose-100">
         <h3 className="text-rose-600 font-black mb-6 flex items-center gap-2">
            บันทึกการพัฒนา
         </h3>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Kanit } from "next/font/google";
 import "./globals.css";
 import Sidebar from "@/components/Sidebar";
+import MobileHeader from "@/components/MobileHeader";
 
 const kanit = Kanit({
   variable: "--font-kanit",
@@ -25,7 +26,8 @@ export default function RootLayout({
       className={`${kanit.variable} h-full antialiased`}
     >
       <body className="h-full bg-[#FFFAF5] font-sans">
-        <div className="flex h-full">
+        <div className="flex flex-col lg:flex-row h-full">
+          <MobileHeader />
           <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
             <Sidebar />
           </div>

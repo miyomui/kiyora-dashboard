@@ -66,26 +66,31 @@ export default function Home() {
             ระบบวิเคราะห์แบรนด์อัจฉริยะที่ช่วยให้คุณเข้าใจ <br/>
             ความต้องการของลูกค้าและทำนายผลลัพธ์ได้อย่างแม่นยำ
           </p>
-          <div className="mt-10 flex items-center gap-x-6">
-            <button className="rounded-2xl bg-rose-400 px-8 py-4 text-sm font-bold text-white shadow-lg shadow-rose-200 hover:bg-rose-500 transition-all">
-              เริ่มวิเคราะห์ผล
-            </button>
-            <button className="text-sm font-bold leading-6 text-slate-600 flex items-center gap-2 group">
+          <div className="mt-10 flex flex-col sm:flex-row items-center gap-6">
+            <Link href="/supervised" className="w-full sm:w-auto">
+              <button className="w-full sm:w-auto rounded-2xl bg-rose-400 px-8 py-4 text-sm font-bold text-white shadow-lg shadow-rose-200 hover:bg-rose-500 transition-all active:scale-95">
+                เริ่มวิเคราะห์ผล
+              </button>
+            </Link>
+            <button 
+              onClick={() => document.getElementById('architecture')?.scrollIntoView({ behavior: 'smooth' })}
+              className="text-sm font-bold leading-6 text-slate-600 flex items-center gap-2 group hover:text-rose-400 transition-colors"
+            >
               ดูรายละเอียดเพิ่มเติม <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </button>
           </div>
         </div>
         
         {/* Soft decorative shapes */}
-        <div className="absolute top-0 right-0 -mr-20 -mt-20 h-96 w-96 rounded-full bg-white opacity-40 blur-3xl" />
-        <div className="absolute bottom-0 right-0 -mr-10 -mb-10 h-64 w-64 rounded-full bg-teal-200 opacity-30 blur-2xl" />
+        <div className="absolute top-0 right-0 -mr-20 -mt-20 h-64 w-64 sm:h-96 sm:w-96 rounded-full bg-white opacity-40 blur-3xl" />
+        <div className="absolute bottom-0 right-0 -mr-10 -mb-10 h-48 w-48 sm:h-64 sm:w-64 rounded-full bg-teal-200 opacity-30 blur-2xl" />
       </motion.section>
 
       {/* System Architecture Diagram */}
-      <section className="space-y-12">
-        <div className="text-center">
-          <h2 className="text-3xl font-bold text-slate-800">โครงสร้างสถาปัตยกรรมระบบ</h2>
-          <p className="mt-2 text-slate-400 font-medium">การเชื่อมต่อข้อมูลและการทำงานของ AI แบบครบวงจร</p>
+      <section id="architecture" className="space-y-12 scroll-mt-20">
+        <div className="text-center px-4">
+          <h2 className="text-2xl sm:text-3xl font-bold text-slate-800">โครงสร้างสถาปัตยกรรมระบบ</h2>
+          <p className="mt-2 text-sm sm:text-base text-slate-400 font-medium">การเชื่อมต่อข้อมูลและการทำงานของ AI แบบครบวงจร</p>
         </div>
 
         <div className="relative max-w-5xl mx-auto">

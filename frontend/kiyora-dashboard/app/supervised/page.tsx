@@ -103,7 +103,7 @@ export default function SupervisedPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
         {/* Prediction Form */}
         <section className="lg:col-span-2 space-y-6">
-          <div className="bg-white p-10 rounded-[3rem] border border-rose-50 shadow-xl overflow-hidden relative">
+          <div className="bg-white p-6 sm:p-10 rounded-[2rem] sm:rounded-[3rem] border border-rose-50 shadow-xl overflow-hidden relative">
             <div className="absolute top-0 left-0 w-1 bg-rose-400 h-full" />
             <h2 className="text-xl font-bold text-slate-800 mb-8 flex items-center gap-2">
               <Search className="h-5 w-5 text-rose-400" />
@@ -194,7 +194,7 @@ export default function SupervisedPage() {
             {result ? (
               <motion.div 
                 key="result"
-                className="bg-white p-10 rounded-[3rem] border border-rose-50 shadow-xl text-center space-y-8"
+                className="bg-white p-6 sm:p-10 rounded-[2rem] sm:rounded-[3rem] border border-rose-50 shadow-xl text-center space-y-8"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 20 }}

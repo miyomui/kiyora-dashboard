@@ -48,7 +48,7 @@ export default function InsightsPage() {
         {insights.map((item, idx) => (
           <motion.div 
             key={idx}
-            className="bg-white p-10 rounded-[2.5rem] border border-rose-50 shadow-sm hover:shadow-lg transition-all group"
+            className="bg-white p-8 sm:p-10 rounded-[2rem] sm:rounded-[2.5rem] border border-rose-50 shadow-sm hover:shadow-lg transition-all group"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: idx * 0.1 }}
@@ -68,7 +68,7 @@ export default function InsightsPage() {
 
       {/* Analysis Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        <section className="bg-white p-10 rounded-[3rem] border border-rose-50 shadow-sm">
+        <section className="bg-white p-6 sm:p-10 rounded-[2rem] sm:rounded-[3rem] border border-rose-50 shadow-sm">
           <h2 className="text-xl font-bold text-slate-800 mb-10 flex items-center gap-2">
             <BarChart4 className="h-5 w-5 text-rose-400" />
             แนวโน้มความรู้สึกต่อแบรนด์
@@ -97,7 +97,7 @@ export default function InsightsPage() {
           </div>
         </section>
 
-        <section className="bg-gradient-to-br from-rose-300 to-rose-400 p-10 rounded-[3rem] text-white shadow-xl shadow-rose-100 flex flex-col justify-between border-4 border-white/30">
+        <section className="bg-gradient-to-br from-rose-300 to-rose-400 p-8 sm:p-10 rounded-[2rem] sm:rounded-[3rem] text-white shadow-xl shadow-rose-100 flex flex-col justify-between border-4 border-white/30">
           <div>
             <div className="bg-white/30 w-fit p-3 rounded-2xl mb-8">
               <Sparkles className="h-6 w-6" />
