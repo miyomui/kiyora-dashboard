@@ -1,15 +1,16 @@
 import sys
 import os
 
-# --- เพิ่ม 2 บรรทัดนี้ เพื่อให้ Python มองเห็นโฟลเดอร์ src ที่อยู่ข้างนอก ---
+# Allow Python to find src/ modules from project root
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from src.predict import predict
+from src.model_comparison import get_model_comparison
 
-app = FastAPI()
+app = FastAPI(title="Kiyora Brand Analysis API")
 
 # Enable CORS
 app.add_middleware(
@@ -31,9 +32,15 @@ class InputData(BaseModel):
 
 @app.get("/")
 def home():
-    return {"message": "Kiyora Model API is running 🚀"}
+    return {"message": "Kiyora Model API is running"}
 
 @app.post("/predict")
 def predict_api(data: InputData):
-    result = predict(data.dict())
-    return result
+    return predict(data.dict())
+
+@app.get("/model-comparison")
+def model_comparison_api():
+    """
+    ประเมินผลโมเดลทุกตัวจาก .pkl จริง และส่งตัวเลขกลับไปให้ Frontend
+    """
+    return get_model_comparison()

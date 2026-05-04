@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Target, 
@@ -16,30 +16,34 @@ import {
   ShieldCheck
 } from "lucide-react";
 
-// ── Real Model Comparison Data (from evaluate.py) ─────────────────────────
-const modelData = {
-  testSize: 82,
-  models: [
-    { name: "Logistic Regression", accuracy: 0.76, precision: 0.25, recall: 0.50, f1: 0.33, selected: true },
-    { name: "SVM",                 accuracy: 0.82, precision: 0.33, recall: 0.50, f1: 0.40, selected: false },
-    { name: "Random Forest",       accuracy: 0.82, precision: 0.00, recall: 0.00, f1: 0.00, selected: false },
-    { name: "Decision Tree",       accuracy: 0.76, precision: 0.00, recall: 0.00, f1: 0.00, selected: false },
-    { name: "KNN",                 accuracy: 0.88, precision: 0.00, recall: 0.00, f1: 0.00, selected: false },
-  ],
-};
-
-// Mock metrics (as calculated previously)
-const metrics = [
-  { label: "ความแม่นยำ", value: "76.47%", icon: Target, color: "text-rose-400", bg: "bg-rose-50" },
-  { label: "ความชัดเจน", value: "25.00%", icon: Activity, color: "text-teal-500", bg: "bg-teal-50" },
-  { label: "การจดจำ", value: "50.00%", icon: History, color: "text-blue-400", bg: "bg-blue-50" },
-  { label: "คะแนนรวม", value: "33.33%", icon: Percent, color: "text-orange-400", bg: "bg-orange-50" },
+// Metric card definitions (icons/labels only — values come from API)
+const metricDefs = [
+  { key: "accuracy",  label: "ความแม่นยำ",  icon: Target,   color: "text-rose-400",   bg: "bg-rose-50"   },
+  { key: "precision", label: "ความชัดเจน",  icon: Activity, color: "text-teal-500",   bg: "bg-teal-50"   },
+  { key: "recall",    label: "การจดจำ",     icon: History,  color: "text-blue-400",   bg: "bg-blue-50"   },
+  { key: "f1",        label: "คะแนนรวม",   icon: Percent,  color: "text-orange-400", bg: "bg-orange-50" },
 ];
 
 export default function SupervisedPage() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // ── Model Comparison State (fetched from API) ────────────────────────────
+  const [modelData, setModelData] = useState<any>(null);
+  const [loadingComp, setLoadingComp] = useState(true);
+
+  useEffect(() => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8001";
+    fetch(`${apiUrl}/model-comparison`)
+      .then((r) => r.json())
+      .then((data) => setModelData(data))
+      .catch(() => setModelData(null))
+      .finally(() => setLoadingComp(false));
+  }, []);
+
+  // Logistic Regression row (selected model) — used for Indicators Panel
+  const selectedModel = modelData?.models?.find((m: any) => m.selected);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -95,23 +99,29 @@ export default function SupervisedPage() {
         <p className="mt-2 text-slate-400 font-medium">ทำนายพฤติกรรมการเลือกใช้แบรนด์ด้วยระบบ AI</p>
       </section>
 
-      {/* Indicators Panel */}
+      {/* Indicators Panel — ค่าจากโมเดลจริง (Logistic Regression) */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {metrics.map((metric, idx) => (
-          <motion.div 
-            key={idx}
-            className="bg-white p-8 rounded-[2rem] border border-rose-50 shadow-sm"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: idx * 0.1 }}
-          >
-            <div className={`w-12 h-12 ${metric.bg} ${metric.color} rounded-2xl flex items-center justify-center mb-5`}>
-              <metric.icon className="h-6 w-6" />
-            </div>
-            <p className="text-sm font-bold text-slate-400">{metric.label}</p>
-            <p className="text-2xl font-black text-slate-800">{metric.value}</p>
-          </motion.div>
-        ))}
+        {metricDefs.map((m, idx) => {
+          const val = selectedModel ? selectedModel[m.key] : null;
+          const display = val !== null && val !== undefined
+            ? `${(val * 100).toFixed(2)}%`
+            : "—";
+          return (
+            <motion.div
+              key={idx}
+              className="bg-white p-8 rounded-[2rem] border border-rose-50 shadow-sm"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.1 }}
+            >
+              <div className={`w-12 h-12 ${m.bg} ${m.color} rounded-2xl flex items-center justify-center mb-5`}>
+                <m.icon className="h-6 w-6" />
+              </div>
+              <p className="text-sm font-bold text-slate-400">{m.label}</p>
+              <p className="text-2xl font-black text-slate-800">{display}</p>
+            </motion.div>
+          );
+        })}
       </section>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
@@ -273,11 +283,30 @@ export default function SupervisedPage() {
             การเปรียบเทียบประสิทธิภาพโมเดล
           </h2>
           <p className="mt-1 text-slate-400 font-medium text-sm">
-            ทดสอบบน Test Set (20%) — {modelData.testSize} ตัวอย่าง
+            ทดสอบบน Test Set (20%)
+            {modelData?.testSize ? ` — ${modelData.testSize} ตัวอย่าง` : ""}
           </p>
         </div>
 
-        {/* Table */}
+        {/* Loading */}
+        {loadingComp && (
+          <div className="bg-white rounded-[2rem] border border-rose-50 shadow-xl p-16 flex items-center justify-center gap-3 text-slate-400">
+            <Loader2 className="h-6 w-6 animate-spin" />
+            <span className="font-medium text-sm">กำลังโหลดข้อมูลโมเดลจาก API...</span>
+          </div>
+        )}
+
+        {/* API Unavailable fallback */}
+        {!loadingComp && !modelData && (
+          <div className="bg-rose-50 rounded-[2rem] border border-rose-100 p-10 text-center space-y-3">
+            <AlertCircle className="h-10 w-10 text-rose-300 mx-auto" />
+            <p className="font-bold text-rose-600 text-sm">ไม่สามารถเชื่อมต่อ API ได้</p>
+            <p className="text-rose-400 text-xs font-medium">ตรวจสอบให้แน่ใจว่า Backend กำลังทำงานอยู่</p>
+          </div>
+        )}
+
+        {/* Table — แสดงเฉพาะเมื่อโหลดข้อมูลสำเร็จ */}
+        {!loadingComp && modelData && (
         <div className="bg-white rounded-[2rem] border border-rose-50 shadow-xl overflow-hidden">
           {/* Table Header */}
           <div className="grid grid-cols-5 bg-rose-50/60 border-b border-rose-100 px-6 py-4">
@@ -287,7 +316,7 @@ export default function SupervisedPage() {
           </div>
 
           {/* Rows */}
-          {modelData.models.map((m, idx) => (
+          {modelData.models.map((m: any, idx: number) => (
             <motion.div
               key={m.name}
               className={`grid grid-cols-5 items-center px-6 py-5 border-b border-slate-50 last:border-none transition-colors ${
@@ -330,8 +359,10 @@ export default function SupervisedPage() {
             </motion.div>
           ))}
         </div>
+        )} {/* end table conditional */}
 
         {/* Model Justification */}
+        {!loadingComp && modelData && (
         <motion.div
           className="bg-white rounded-[2rem] border border-teal-100 shadow-sm overflow-hidden"
           initial={{ opacity: 0, y: 10 }}
@@ -387,6 +418,7 @@ export default function SupervisedPage() {
             </div>
           </div>
         </motion.div>
+        )} {/* end !loadingComp && modelData */}
       </section>
     </div>
   );
