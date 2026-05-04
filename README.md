@@ -132,11 +132,11 @@ clean.csv
 
 | ชื่อ | บทบาท |
 |---|---|
-| ลลิตวดี | Machine Learning Engineer / Backend Developer |
+| เจ | Machine Learning Engineer / Backend Developer |
 | แพท | Business Analyst / Data Engineer |
 | เนย | Frontend / Dashboard Developer |
 
 ---
 
-**โครงการ**: AIE 324-325 — AI-Driven Marketing Campaign System  
-**สถาบัน**: Bangkok University
+**Project**: AIE 324-325 — AI-Driven Marketing Campaign System  
+**University**: Bangkok University

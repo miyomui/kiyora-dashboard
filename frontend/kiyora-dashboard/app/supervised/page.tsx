@@ -2,50 +2,49 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Target, 
-  Search, 
-  AlertCircle, 
-  CheckCircle2, 
+import {
+  Target,
+  Search,
+  AlertCircle,
+  CheckCircle2,
   ArrowRight,
   Loader2,
   Percent,
   Activity,
   History,
   BarChart3,
-  ShieldCheck
+  ShieldCheck,
 } from "lucide-react";
 
-// Metric card definitions (icons/labels only — values come from API)
+// ── Static label/icon definitions for Indicators Panel ────────────────────────
 const metricDefs = [
-  { key: "accuracy",  label: "ความแม่นยำ",  icon: Target,   color: "text-rose-400",   bg: "bg-rose-50"   },
-  { key: "precision", label: "ความชัดเจน",  icon: Activity, color: "text-teal-500",   bg: "bg-teal-50"   },
-  { key: "recall",    label: "การจดจำ",     icon: History,  color: "text-blue-400",   bg: "bg-blue-50"   },
-  { key: "f1",        label: "คะแนนรวม",   icon: Percent,  color: "text-orange-400", bg: "bg-orange-50" },
+  { key: "accuracy",  label: "ความแม่นยำ", icon: Target,   color: "text-rose-400",   bg: "bg-rose-50"   },
+  { key: "precision", label: "ความชัดเจน", icon: Activity, color: "text-teal-500",   bg: "bg-teal-50"   },
+  { key: "recall",    label: "การจดจำ",    icon: History,  color: "text-blue-400",   bg: "bg-blue-50"   },
+  { key: "f1",        label: "คะแนนรวม",  icon: Percent,  color: "text-orange-400", bg: "bg-orange-50" },
 ];
 
+// ── Types ─────────────────────────────────────────────────────────────────────
+interface ModelRow {
+  name: string;
+  accuracy: number;
+  precision: number;
+  recall: number;
+  f1: number;
+  selected: boolean;
+}
+
+interface ModelData {
+  testSize: number;
+  models: ModelRow[];
+}
+
+// ── Page Component ────────────────────────────────────────────────────────────
 export default function SupervisedPage() {
+  // Prediction form state
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  // ── Model Comparison State (fetched from API) ────────────────────────────
-  const [modelData, setModelData] = useState<any>(null);
-  const [loadingComp, setLoadingComp] = useState(true);
-
-  useEffect(() => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8001";
-    fetch(`${apiUrl}/model-comparison`)
-      .then((r) => r.json())
-      .then((data) => setModelData(data))
-      .catch(() => setModelData(null))
-      .finally(() => setLoadingComp(false));
-  }, []);
-
-  // Logistic Regression row (selected model) — used for Indicators Panel
-  const selectedModel = modelData?.models?.find((m: any) => m.selected);
-
-  // Form State
+  const [predError, setPredError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     gender: "0",
     skin_type: "0",
@@ -53,62 +52,81 @@ export default function SupervisedPage() {
     doctor: "0",
     friend: "0",
     price: "0",
-    acne_score: 3
+    acne_score: 3,
   });
 
+  // Model comparison state
+  const [modelData, setModelData] = useState<ModelData | null>(null);
+  const [loadingComp, setLoadingComp] = useState(true);
+
+  // Fetch model comparison from API on mount
+  useEffect(() => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8001";
+    fetch(`${apiUrl}/model-comparison`)
+      .then((r) => {
+        if (!r.ok) throw new Error("API error");
+        return r.json();
+      })
+      .then((data: ModelData) => setModelData(data))
+      .catch(() => setModelData(null))
+      .finally(() => setLoadingComp(false));
+  }, []);
+
+  // The selected model row (Logistic Regression) for Indicators Panel
+  const selectedModel = modelData?.models?.find((m) => m.selected) ?? null;
+
+  // Handle prediction form submit
   const handlePredict = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
+    setPredError(null);
     setResult(null);
-
     try {
       const payload = {
-        doctor_influence2: parseInt(formData.doctor),
-        friend_influence: parseInt(formData.friend),
-        price_sensitive: parseInt(formData.price),
-        acne: parseInt(formData.acne),
-        skin_type_encoded: parseInt(formData.skin_type),
+        doctor_influence2:  parseInt(formData.doctor),
+        friend_influence:   parseInt(formData.friend),
+        price_sensitive:    parseInt(formData.price),
+        acne:               parseInt(formData.acne),
+        skin_type_encoded:  parseInt(formData.skin_type),
         acne_friendly_score: formData.acne_score / 5.0,
-        gender: parseInt(formData.gender)
+        gender:             parseInt(formData.gender),
       };
-
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8001";
       const response = await fetch(`${apiUrl}/predict`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-
-      if (!response.ok) throw new Error("ไม่สามารถเชื่อมต่อกับระบบหลังบ้านได้ กรุณาตรวจสอบการทำงานของ API");
-      
+      if (!response.ok) throw new Error("ไม่สามารถเชื่อมต่อกับระบบหลังบ้านได้");
       const data = await response.json();
       setResult(data);
     } catch (err: any) {
-      setError(err.message || "เกิดข้อผิดพลาดที่ไม่คาดคิด");
+      setPredError(err.message || "เกิดข้อผิดพลาดที่ไม่คาดคิด");
     } finally {
       setLoading(false);
     }
   };
 
+  // ── Render ──────────────────────────────────────────────────────────────────
   return (
     <div className="space-y-10 pb-20">
+
       {/* Header */}
       <section>
         <h1 className="text-3xl font-bold text-slate-800">วิเคราะห์และทำนายผล</h1>
         <p className="mt-2 text-slate-400 font-medium">ทำนายพฤติกรรมการเลือกใช้แบรนด์ด้วยระบบ AI</p>
       </section>
 
-      {/* Indicators Panel — ค่าจากโมเดลจริง (Logistic Regression) */}
+      {/* Indicators Panel — values from selected model via API */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {metricDefs.map((m, idx) => {
-          const val = selectedModel ? selectedModel[m.key] : null;
+          const val = selectedModel ? (selectedModel as any)[m.key] : null;
           const display = val !== null && val !== undefined
             ? `${(val * 100).toFixed(2)}%`
             : "—";
           return (
             <motion.div
-              key={idx}
+              key={m.key}
               className="bg-white p-8 rounded-[2rem] border border-rose-50 shadow-sm"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -124,7 +142,9 @@ export default function SupervisedPage() {
         })}
       </section>
 
+      {/* Form + Result */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+
         {/* Prediction Form */}
         <section className="lg:col-span-2 space-y-6">
           <div className="bg-white p-6 sm:p-10 rounded-[2rem] sm:rounded-[3rem] border border-rose-50 shadow-xl overflow-hidden relative">
@@ -137,10 +157,10 @@ export default function SupervisedPage() {
             <form onSubmit={handlePredict} className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
               <div className="space-y-3">
                 <label className="text-sm font-bold text-slate-500 ml-1">เพศ</label>
-                <select 
+                <select
                   className="w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-rose-200 outline-none transition-all font-medium text-slate-600"
                   value={formData.gender}
-                  onChange={(e) => setFormData({...formData, gender: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
                 >
                   <option value="0">หญิง</option>
                   <option value="1">ชาย</option>
@@ -149,10 +169,10 @@ export default function SupervisedPage() {
 
               <div className="space-y-3">
                 <label className="text-sm font-bold text-slate-500 ml-1">ประเภทผิว</label>
-                <select 
+                <select
                   className="w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-rose-200 outline-none transition-all font-medium text-slate-600"
                   value={formData.skin_type}
-                  onChange={(e) => setFormData({...formData, skin_type: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, skin_type: e.target.value })}
                 >
                   <option value="0">ไม่แน่ใจ</option>
                   <option value="1">ผิวมัน</option>
@@ -163,17 +183,17 @@ export default function SupervisedPage() {
               </div>
 
               {[
-                { label: "กังวลเรื่องสิวหรือไม่?", name: "acne" },
-                { label: "ซื้อตามคำแนะนำแพทย์?", name: "doctor" },
-                { label: "ซื้อตามคำแนะนำเพื่อน?", name: "friend" },
-                { label: "ราคาเป็นปัจจัยสำคัญ?", name: "price" },
+                { label: "กังวลเรื่องสิวหรือไม่?",     name: "acne"   },
+                { label: "ซื้อตามคำแนะนำแพทย์?",       name: "doctor" },
+                { label: "ซื้อตามคำแนะนำเพื่อน?",      name: "friend" },
+                { label: "ราคาเป็นปัจจัยสำคัญ?",       name: "price"  },
               ].map((item) => (
                 <div key={item.name} className="space-y-3">
                   <label className="text-sm font-bold text-slate-500 ml-1">{item.label}</label>
-                  <select 
+                  <select
                     className="w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-rose-200 outline-none transition-all font-medium text-slate-600"
                     value={(formData as any)[item.name]}
-                    onChange={(e) => setFormData({...formData, [item.name]: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, [item.name]: e.target.value })}
                   >
                     <option value="1">ใช่</option>
                     <option value="0">ไม่ใช่</option>
@@ -181,22 +201,27 @@ export default function SupervisedPage() {
                 </div>
               ))}
 
-              <div className="md:col-span-2 space-y-6 pt-4">
+              <div className="md:col-span-2 space-y-4 pt-4">
                 <div className="flex justify-between items-center">
-                  <label className="text-sm font-bold text-slate-500 ml-1">ให้ความสำคัญกับสูตรที่ 'อ่อนโยนต่อสิว' แค่ไหน? (0-5)</label>
-                  <span className="text-rose-500 font-black bg-rose-50 px-4 py-1 rounded-xl">{formData.acne_score}</span>
+                  <label className="text-sm font-bold text-slate-500 ml-1">
+                    ให้ความสำคัญกับสูตรที่ "อ่อนโยนต่อสิว" แค่ไหน? (0–5)
+                  </label>
+                  <span className="text-rose-500 font-black bg-rose-50 px-4 py-1 rounded-xl">
+                    {formData.acne_score}
+                  </span>
                 </div>
-                <input 
-                  type="range" 
-                  min="0" max="5" 
+                <input
+                  type="range"
+                  min="0"
+                  max="5"
                   className="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-rose-400"
                   value={formData.acne_score}
-                  onChange={(e) => setFormData({...formData, acne_score: parseInt(e.target.value)})}
+                  onChange={(e) => setFormData({ ...formData, acne_score: parseInt(e.target.value) })}
                 />
               </div>
 
               <div className="md:col-span-2 pt-8">
-                <button 
+                <button
                   type="submit"
                   disabled={loading}
                   className="w-full bg-rose-400 text-white rounded-[1.5rem] py-5 font-black shadow-lg shadow-rose-100 hover:bg-rose-500 disabled:opacity-50 transition-all flex items-center justify-center gap-2 group"
@@ -204,7 +229,10 @@ export default function SupervisedPage() {
                   {loading ? (
                     <Loader2 className="h-6 w-6 animate-spin" />
                   ) : (
-                    <>เริ่มวิเคราะห์ข้อมูล <ArrowRight className="h-6 w-6 group-hover:translate-x-1 transition-transform" /></>
+                    <>
+                      เริ่มวิเคราะห์ข้อมูล
+                      <ArrowRight className="h-6 w-6 group-hover:translate-x-1 transition-transform" />
+                    </>
                   )}
                 </button>
               </div>
@@ -216,7 +244,7 @@ export default function SupervisedPage() {
         <section className="space-y-6">
           <AnimatePresence mode="wait">
             {result ? (
-              <motion.div 
+              <motion.div
                 key="result"
                 className="bg-white p-6 sm:p-10 rounded-[2rem] sm:rounded-[3rem] border border-rose-50 shadow-xl text-center space-y-8"
                 initial={{ opacity: 0, x: 20 }}
@@ -238,7 +266,7 @@ export default function SupervisedPage() {
                     {(result.probability["1 (Kiyora)"] * 100).toFixed(1)}%
                   </p>
                   <div className="w-full bg-white h-3 rounded-full mt-6 overflow-hidden shadow-inner">
-                    <motion.div 
+                    <motion.div
                       className="bg-gradient-to-r from-rose-300 to-rose-500 h-full"
                       initial={{ width: 0 }}
                       animate={{ width: `${result.probability["1 (Kiyora)"] * 100}%` }}
@@ -247,8 +275,8 @@ export default function SupervisedPage() {
                   </div>
                 </div>
               </motion.div>
-            ) : error ? (
-              <motion.div 
+            ) : predError ? (
+              <motion.div
                 key="error"
                 className="bg-rose-50 p-10 rounded-[3rem] border border-rose-100 text-center space-y-5"
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -256,10 +284,10 @@ export default function SupervisedPage() {
               >
                 <AlertCircle className="h-12 w-12 text-rose-400 mx-auto" />
                 <h3 className="text-rose-800 font-black text-lg">เกิดข้อผิดพลาด</h3>
-                <p className="text-rose-600 text-sm font-medium">{error}</p>
+                <p className="text-rose-600 text-sm font-medium">{predError}</p>
               </motion.div>
             ) : (
-              <motion.div 
+              <motion.div
                 key="empty"
                 className="bg-white p-12 rounded-[3rem] border-2 border-dashed border-rose-100 text-center space-y-6"
                 initial={{ opacity: 0 }}
@@ -275,7 +303,7 @@ export default function SupervisedPage() {
         </section>
       </div>
 
-      {/* ── Model Comparison ── */}
+      {/* Model Comparison Table */}
       <section className="space-y-6">
         <div>
           <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
@@ -283,12 +311,13 @@ export default function SupervisedPage() {
             การเปรียบเทียบประสิทธิภาพโมเดล
           </h2>
           <p className="mt-1 text-slate-400 font-medium text-sm">
-            ทดสอบบน Test Set (20%)
-            {modelData?.testSize ? ` — ${modelData.testSize} ตัวอย่าง` : ""}
+            {modelData?.testSize
+              ? `ทดสอบบน Test Set (20%) — ${modelData.testSize} ตัวอย่าง`
+              : "ทดสอบบน Test Set (20%)"}
           </p>
         </div>
 
-        {/* Loading */}
+        {/* Loading state */}
         {loadingComp && (
           <div className="bg-white rounded-[2rem] border border-rose-50 shadow-xl p-16 flex items-center justify-center gap-3 text-slate-400">
             <Loader2 className="h-6 w-6 animate-spin" />
@@ -296,7 +325,7 @@ export default function SupervisedPage() {
           </div>
         )}
 
-        {/* API Unavailable fallback */}
+        {/* API failed state */}
         {!loadingComp && !modelData && (
           <div className="bg-rose-50 rounded-[2rem] border border-rose-100 p-10 text-center space-y-3">
             <AlertCircle className="h-10 w-10 text-rose-300 mx-auto" />
@@ -305,120 +334,132 @@ export default function SupervisedPage() {
           </div>
         )}
 
-        {/* Table — แสดงเฉพาะเมื่อโหลดข้อมูลสำเร็จ */}
+        {/* Table — only when data is ready */}
         {!loadingComp && modelData && (
-        <div className="bg-white rounded-[2rem] border border-rose-50 shadow-xl overflow-hidden">
-          {/* Table Header */}
-          <div className="grid grid-cols-5 bg-rose-50/60 border-b border-rose-100 px-6 py-4">
-            {["โมเดล", "Accuracy", "Precision", "Recall", "F1-Score"].map((h, i) => (
-              <p key={i} className={`text-xs font-black text-slate-500 uppercase tracking-wider ${i === 0 ? "col-span-1" : "text-center"}`}>{h}</p>
+          <div className="bg-white rounded-[2rem] border border-rose-50 shadow-xl overflow-hidden">
+            <div className="grid grid-cols-5 bg-rose-50/60 border-b border-rose-100 px-6 py-4">
+              {["โมเดล", "Accuracy", "Precision", "Recall", "F1-Score"].map((h, i) => (
+                <p
+                  key={h}
+                  className={`text-xs font-black text-slate-500 uppercase tracking-wider ${i === 0 ? "" : "text-center"}`}
+                >
+                  {h}
+                </p>
+              ))}
+            </div>
+
+            {modelData.models.map((m, idx) => (
+              <motion.div
+                key={m.name}
+                className={`grid grid-cols-5 items-center px-6 py-5 border-b border-slate-50 last:border-none transition-colors ${
+                  m.selected ? "bg-teal-50/40" : "hover:bg-slate-50/50"
+                }`}
+                initial={{ opacity: 0, x: -10 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.08 }}
+              >
+                <div className="flex items-center gap-2 flex-wrap">
+                  {m.selected && (
+                    <span className="bg-teal-400 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0">
+                      ✓ เลือกใช้
+                    </span>
+                  )}
+                  <span className={`text-sm font-bold ${m.selected ? "text-teal-700" : "text-slate-600"}`}>
+                    {m.name}
+                  </span>
+                </div>
+
+                {[m.accuracy, m.precision, m.recall, m.f1].map((val, i) => (
+                  <div key={i} className="flex flex-col items-center gap-1.5">
+                    <span className={`text-base font-black ${m.selected ? "text-teal-600" : "text-slate-700"}`}>
+                      {(val * 100).toFixed(0)}%
+                    </span>
+                    <div className="w-full max-w-[60px] h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                      <motion.div
+                        className={`h-full rounded-full ${m.selected ? "bg-teal-400" : "bg-rose-200"}`}
+                        initial={{ width: 0 }}
+                        whileInView={{ width: `${val * 100}%` }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.8, delay: 0.2 + idx * 0.08 }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </motion.div>
             ))}
           </div>
-
-          {/* Rows */}
-          {modelData.models.map((m: any, idx: number) => (
-            <motion.div
-              key={m.name}
-              className={`grid grid-cols-5 items-center px-6 py-5 border-b border-slate-50 last:border-none transition-colors ${
-                m.selected ? "bg-teal-50/40" : "hover:bg-slate-50/50"
-              }`}
-              initial={{ opacity: 0, x: -10 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: idx * 0.08 }}
-            >
-              {/* Model Name */}
-              <div className="flex items-center gap-3">
-                {m.selected && (
-                  <span className="bg-teal-400 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0">
-                    ✓ เลือกใช้
-                  </span>
-                )}
-                <span className={`text-sm font-bold ${m.selected ? "text-teal-700" : "text-slate-600"}`}>
-                  {m.name}
-                </span>
-              </div>
-
-              {/* Metrics */}
-              {[m.accuracy, m.precision, m.recall, m.f1].map((val, i) => (
-                <div key={i} className="flex flex-col items-center gap-1.5">
-                  <span className={`text-base font-black ${m.selected ? "text-teal-600" : "text-slate-700"}`}>
-                    {(val * 100).toFixed(0)}%
-                  </span>
-                  <div className="w-full max-w-[60px] h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                    <motion.div
-                      className={`h-full rounded-full ${m.selected ? "bg-teal-400" : "bg-rose-200"}`}
-                      initial={{ width: 0 }}
-                      whileInView={{ width: `${val * 100}%` }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.8, delay: 0.2 + idx * 0.08 }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </motion.div>
-          ))}
-        </div>
-        )} {/* end table conditional */}
+        )}
 
         {/* Model Justification */}
         {!loadingComp && modelData && (
-        <motion.div
-          className="bg-white rounded-[2rem] border border-teal-100 shadow-sm overflow-hidden"
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-        >
-          <div className="bg-teal-50 px-8 py-5 border-b border-teal-100 flex items-center gap-3">
-            <ShieldCheck className="h-5 w-5 text-teal-500" />
-            <h3 className="font-black text-teal-800">Model Justification — เหตุผลในการเลือกโมเดล</h3>
-          </div>
-          <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="space-y-4">
-              <div className="flex items-start gap-3">
-                <div className="w-2 h-2 rounded-full bg-teal-400 mt-2 shrink-0" />
-                <p className="text-sm text-slate-600 font-medium leading-relaxed">
-                  <span className="font-black text-slate-800">โจทย์เป็นแบบ Binary Classification</span> — ทำนายว่าลูกค้าจะเลือกใช้ Kiyora (1) หรือไม่ (0)
-                </p>
+          <motion.div
+            className="bg-white rounded-[2rem] border border-teal-100 shadow-sm overflow-hidden"
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <div className="bg-teal-50 px-8 py-5 border-b border-teal-100 flex items-center gap-3">
+              <ShieldCheck className="h-5 w-5 text-teal-500" />
+              <h3 className="font-black text-teal-800">Model Justification — เหตุผลในการเลือกโมเดล</h3>
+            </div>
+            <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-2 h-2 rounded-full bg-teal-400 mt-2 shrink-0" />
+                  <p className="text-sm text-slate-600 font-medium leading-relaxed">
+                    <span className="font-black text-slate-800">โจทย์เป็นแบบ Binary Classification</span>
+                    {" "}— ทำนายว่าลูกค้าจะเลือกใช้ Kiyora (1) หรือไม่ (0)
+                  </p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-2 h-2 rounded-full bg-teal-400 mt-2 shrink-0" />
+                  <p className="text-sm text-slate-600 font-medium leading-relaxed">
+                    <span className="font-black text-slate-800">ข้อมูลไม่สมดุล (Imbalanced Data)</span>
+                    {" "}— Class 0 มี 72 ตัวอย่าง vs Class 1 มีเพียง 10 ตัวอย่าง
+                    จึงใช้{" "}
+                    <code className="bg-slate-100 px-1.5 rounded text-xs font-mono text-rose-600">
+                      class_weight="balanced"
+                    </code>
+                    {" "}เพื่อชดเชย
+                  </p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-2 h-2 rounded-full bg-teal-400 mt-2 shrink-0" />
+                  <p className="text-sm text-slate-600 font-medium leading-relaxed">
+                    <span className="font-black text-slate-800">เลือก Logistic Regression</span>
+                    {" "}— เพราะให้ค่า Recall สูงสุด (50%) สำหรับ Class 1 ซึ่งสำคัญกว่า Precision
+                    ในบริบทของการหาลูกค้าเป้าหมาย
+                  </p>
+                </div>
               </div>
-              <div className="flex items-start gap-3">
-                <div className="w-2 h-2 rounded-full bg-teal-400 mt-2 shrink-0" />
-                <p className="text-sm text-slate-600 font-medium leading-relaxed">
-                  <span className="font-black text-slate-800">ข้อมูลไม่สมดุล (Imbalanced Data)</span> — Class 0 มี 72 ตัวอย่าง vs Class 1 มีเพียง 10 ตัวอย่าง
-                  จึงใช้ <code className="bg-slate-100 px-1.5 rounded text-xs font-mono text-rose-600">class_weight="balanced"</code> เพื่อชดเชย
-                </p>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-2 h-2 rounded-full bg-teal-400 mt-2 shrink-0" />
-                <p className="text-sm text-slate-600 font-medium leading-relaxed">
-                  <span className="font-black text-slate-800">เลือก Logistic Regression</span> — เพราะให้ค่า Recall สูงสุด (50%) สำหรับ Class 1 (กลุ่ม Kiyora User)
-                  ซึ่งสำคัญกว่า Precision ในบริบทของการหาลูกค้าเป้าหมาย
-                </p>
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-2 h-2 rounded-full bg-rose-300 mt-2 shrink-0" />
+                  <p className="text-sm text-slate-600 font-medium leading-relaxed">
+                    <span className="font-black text-slate-800">Random Forest {"&"} KNN</span>
+                    {" "}— Accuracy สูง (82%, 88%) แต่ Recall = 0% เพราะไม่รองรับ Imbalanced Data
+                  </p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-2 h-2 rounded-full bg-rose-300 mt-2 shrink-0" />
+                  <p className="text-sm text-slate-600 font-medium leading-relaxed">
+                    <span className="font-black text-slate-800">SVM</span>
+                    {" "}— ให้ผลใกล้เคียง Logistic Regression แต่ซับซ้อนกว่าโดยไม่จำเป็น
+                  </p>
+                </div>
+                <div className="p-4 bg-teal-50 rounded-2xl border border-teal-100 mt-2">
+                  <p className="text-xs font-bold text-teal-700 leading-relaxed">
+                    💡 <span className="font-black">สรุป:</span>{" "}
+                    ในบริบทการหาลูกค้า Kiyora การ "ไม่พลาด" ลูกค้าที่สนใจ (Recall)
+                    สำคัญกว่าความแม่นยำที่สูงแต่พลาดกลุ่มเป้าหมาย
+                    จึงเลือก Logistic Regression เป็นโมเดลหลัก
+                  </p>
+                </div>
               </div>
             </div>
-            <div className="space-y-4">
-              <div className="flex items-start gap-3">
-                <div className="w-2 h-2 rounded-full bg-rose-300 mt-2 shrink-0" />
-                <p className="text-sm text-slate-600 font-medium leading-relaxed">
-                  <span className="font-black text-slate-800">Random Forest & KNN</span> — Accuracy สูง (82%, 88%) แต่ Recall = 0% หมายความว่าโมเดลทำนาย Class 1 ผิดทั้งหมด เนื่องจากไม่รองรับ Imbalanced Data
-                </p>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-2 h-2 rounded-full bg-rose-300 mt-2 shrink-0" />
-                <p className="text-sm text-slate-600 font-medium leading-relaxed">
-                  <span className="font-black text-slate-800">SVM</span> — ให้ผลใกล้เคียง Logistic Regression แต่มีความซับซ้อนสูงกว่าโดยไม่จำเป็นสำหรับข้อมูลขนาดนี้
-                </p>
-              </div>
-              <div className="p-4 bg-teal-50 rounded-2xl border border-teal-100 mt-2">
-                <p className="text-xs font-bold text-teal-700 leading-relaxed">
-                  💡 <span className="font-black">สรุป:</span> ในบริบทการหาลูกค้า Kiyora การ "ไม่พลาด" ลูกค้าที่สนใจ (Recall) สำคัญกว่าความแม่นยำที่สูงแต่พลาดกลุ่มเป้าหมาย
-                  จึงเลือก Logistic Regression เป็นโมเดลหลัก
-                </p>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-        )} {/* end !loadingComp && modelData */}
+          </motion.div>
+        )}
       </section>
     </div>
   );
