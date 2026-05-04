@@ -15,6 +15,7 @@ downloads/
 eggs/
 .eggs/
 lib/
+!frontend/kiyora-dashboard/lib/
 lib64/
 parts/
 sdist/
