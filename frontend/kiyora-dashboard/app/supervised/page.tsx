@@ -18,10 +18,10 @@ import {
 
 // ── Static label/icon definitions for Indicators Panel ────────────────────────
 const metricDefs = [
-  { key: "accuracy",  label: "ความแม่นยำ", icon: Target,   color: "text-rose-400",   bg: "bg-rose-50"   },
-  { key: "precision", label: "ความชัดเจน", icon: Activity, color: "text-teal-500",   bg: "bg-teal-50"   },
-  { key: "recall",    label: "การจดจำ",    icon: History,  color: "text-blue-400",   bg: "bg-blue-50"   },
-  { key: "f1",        label: "คะแนนรวม",  icon: Percent,  color: "text-orange-400", bg: "bg-orange-50" },
+  { key: "accuracy",  label: "ความแม่นยำ (Accuracy)", icon: Target,   color: "text-slate-700",   bg: "bg-slate-100", desc: "ทายถูกบ่อยแค่ไหนจากทั้งหมด?" },
+  { key: "precision", label: "ความชัดเจน (Precision)", icon: Activity, color: "text-slate-700",   bg: "bg-slate-100", desc: "ทายว่าเป็นลูกค้า แล้วเป็นจริงๆ กี่คน?" },
+  { key: "recall",    label: "การตรวจจับ (Recall)",    icon: History,  color: "text-rose-600",   bg: "bg-rose-50", desc: "มีลูกค้า 100 คน หาเจอได้กี่คน? (สำคัญสุด)" },
+  { key: "f1",        label: "คะแนนรวม (F1-Score)",  icon: Percent,  color: "text-slate-700", bg: "bg-slate-100", desc: "ความสมดุลและน่าเชื่อถือโดยรวม" },
 ];
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -162,67 +162,38 @@ export default function SupervisedPage() {
   return (
     <div className="space-y-10 pb-20">
 
-      {/* Dark Hero Section (Premium Theme) */}
-      <section className="relative bg-[#0f172a] rounded-[2.5rem] p-8 sm:p-12 overflow-hidden shadow-2xl border border-slate-800">
-        {/* Glow effect background */}
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-rose-500/10 blur-[120px] rounded-full -mr-40 -mt-40" />
-        <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-teal-500/10 blur-[100px] rounded-full -ml-20 -mb-20" />
+      {/* Executive Hero Section */}
+      <section className="bg-white rounded-[2rem] p-8 sm:p-12 border border-slate-200 shadow-sm relative overflow-hidden">
+        {/* Subtle top border accent */}
+        <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-rose-400 to-rose-300" />
+        
+        <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-8">
+          <div className="max-w-3xl">
+            <div className="inline-flex items-center gap-2 bg-slate-100 px-3 py-1 rounded-md mb-6 border border-slate-200">
+              <div className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+              <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Predictive AI Model (Supervised)</span>
+            </div>
 
-        <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-8">
-          <div className="max-w-2xl">
-            {/* Badge */}
-            <motion.div 
-              className="inline-flex items-center gap-2 bg-rose-500/10 border border-rose-500/20 px-3 py-1 rounded-full mb-6"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-            >
-              <div className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse" />
-              <span className="text-[10px] font-black text-rose-300 uppercase tracking-[0.2em]">Supervised Learning Mode</span>
-            </motion.div>
+            <h1 className="text-3xl sm:text-4xl font-black text-slate-900 leading-[1.2] tracking-tight">
+              ทำนายโอกาสการซื้อ<br/>
+              <span className="text-rose-500">ด้วยข้อมูลพฤติกรรมลูกค้า</span>
+            </h1>
 
-            <motion.h1 
-              className="text-4xl sm:text-5xl font-black text-white leading-[1.1] tracking-tight"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-            >
-              การทำนายพฤติกรรม <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-300 to-emerald-400">
-                & วิเคราะห์โอกาสการซื้อ
-              </span>
-            </motion.h1>
-
-            <motion.p 
-              className="mt-6 text-slate-400 font-medium text-lg max-w-xl leading-relaxed"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              ใช้ขุมพลังของ AI ในการวิเคราะห์ปัจจัยต่างๆ เพื่อคาดการณ์ความเป็นไปได้ที่ลูกค้าจะเลือกแบรนด์ Kiyora พร้อมรับคำแนะนำเชิงกลยุทธ์แบบ Real-time
-            </motion.p>
+            <p className="mt-4 text-slate-500 font-medium text-base max-w-2xl leading-relaxed">
+              เรานำข้อมูลในอดีตมาสอนให้ AI รู้จัก "หน้าตาของลูกค้า Kiyora" เพื่อให้ระบบสามารถคาดการณ์โอกาสการซื้อของกลุ่มเป้าหมายใหม่ๆ ได้อย่างแม่นยำ พร้อมให้คำแนะนำทางการตลาดอัตโนมัติ
+            </p>
           </div>
 
-          {/* Glassmorphism Stats Cards */}
-          <div className="flex flex-wrap gap-4">
-            <motion.div 
-              className="bg-white/5 backdrop-blur-md border border-white/10 p-6 rounded-[2rem] min-w-[160px] flex-1 lg:flex-none shadow-xl"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.3 }}
-            >
-              <p className="text-3xl font-black text-white mb-1">{modelData.trainSize}</p>
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-tight">จำนวนข้อมูล <br />ที่ใช้สอน (Train)</p>
-            </motion.div>
-
-            <motion.div 
-              className="bg-white/5 backdrop-blur-md border border-white/10 p-6 rounded-[2rem] min-w-[160px] flex-1 lg:flex-none shadow-xl"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.4 }}
-            >
-              <p className="text-3xl font-black text-teal-400 mb-1">{modelData.testSize}</p>
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-tight">จำนวนข้อมูล <br />ที่ใช้ทดสอบ (Test)</p>
-            </motion.div>
+          {/* Clean Stats Cards */}
+          <div className="flex flex-col sm:flex-row gap-4 shrink-0 mt-4 lg:mt-0">
+            <div className="bg-slate-50 border border-slate-100 p-5 rounded-2xl min-w-[140px]">
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">ข้อมูลสำหรับสอน (Train)</p>
+              <p className="text-3xl font-black text-slate-800">{modelData.trainSize} <span className="text-base font-medium text-slate-500">รายการ</span></p>
+            </div>
+            <div className="bg-slate-50 border border-slate-100 p-5 rounded-2xl min-w-[140px]">
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">ข้อมูลสำหรับทดสอบ (Test)</p>
+              <p className="text-3xl font-black text-rose-500">{modelData.testSize} <span className="text-base font-medium text-rose-300">รายการ</span></p>
+            </div>
           </div>
         </div>
       </section>
@@ -243,28 +214,28 @@ export default function SupervisedPage() {
           return (
             <motion.div
               key={m.key}
-              className="bg-white p-8 rounded-[2rem] border border-rose-50 shadow-sm overflow-hidden relative"
+              className={`bg-white p-6 rounded-[1.5rem] border ${m.key === 'recall' ? 'border-rose-200 shadow-rose-100/50' : 'border-slate-100'} shadow-sm relative group`}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.1 }}
             >
-              <div className="absolute top-0 right-0 p-4 opacity-5">
-                <m.icon className="h-12 w-12" />
+              <div className="flex items-start gap-4 mb-4">
+                <div className={`w-12 h-12 shrink-0 ${m.bg} ${m.color} rounded-xl flex items-center justify-center`}>
+                  <m.icon className="h-6 w-6" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-slate-800">{m.label}</p>
+                  <p className="text-[10px] font-medium text-slate-500 mt-0.5 leading-snug">{m.desc}</p>
+                </div>
               </div>
-              <div className={`w-12 h-12 ${m.bg} ${m.color} rounded-2xl flex items-center justify-center mb-5`}>
-                <m.icon className="h-6 w-6" />
-              </div>
-              <p className="text-sm font-bold text-slate-400">{m.label}</p>
               
-              <div className="mt-2 flex flex-col gap-1">
-                <div className="flex justify-between items-baseline">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Test Set</span>
-                  <span className="text-2xl font-black text-slate-800">{displayTest}</span>
-                </div>
-                <div className="flex justify-between items-center bg-slate-50 px-3 py-1.5 rounded-xl">
-                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Train Set</span>
-                  <span className="text-xs font-black text-teal-600">{displayTrain}</span>
-                </div>
+              <div className="flex justify-between items-baseline pt-4 border-t border-slate-50">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Test Set (ของจริง)</span>
+                <span className={`text-2xl font-black ${m.key === 'recall' ? 'text-rose-500' : 'text-slate-800'}`}>{displayTest}</span>
+              </div>
+              <div className="flex justify-between items-center mt-2">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Train Set (ตอนสอน)</span>
+                <span className="text-xs font-bold text-slate-500">{displayTrain}</span>
               </div>
             </motion.div>
           );
@@ -276,8 +247,7 @@ export default function SupervisedPage() {
 
         {/* Prediction Form */}
         <section className="lg:col-span-2 space-y-6">
-          <div className="bg-white p-6 sm:p-10 rounded-[2rem] sm:rounded-[3rem] border border-rose-50 shadow-xl overflow-hidden relative">
-            <div className="absolute top-0 left-0 w-1 bg-rose-400 h-full" />
+          <div className="bg-white p-6 sm:p-10 rounded-[2rem] border border-slate-200 shadow-sm relative">
             <h2 className="text-xl font-bold text-slate-800 mb-8 flex items-center gap-2">
               <Search className="h-5 w-5 text-rose-400" />
               กรอกข้อมูลผู้ใช้งาน
@@ -375,28 +345,28 @@ export default function SupervisedPage() {
             {result ? (
               <motion.div
                 key="result"
-                className="bg-white p-6 sm:p-10 rounded-[2rem] sm:rounded-[3rem] border border-rose-50 shadow-xl text-center space-y-8"
+                className="bg-white p-6 sm:p-10 rounded-[2rem] border border-slate-200 shadow-sm text-center space-y-8"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 20 }}
               >
-                <div className="mx-auto w-24 h-24 bg-teal-50 text-teal-500 rounded-[2rem] flex items-center justify-center border-4 border-white shadow-md">
-                  <CheckCircle2 className="h-12 w-12" />
+                <div className={`mx-auto w-24 h-24 rounded-[2rem] flex items-center justify-center border border-slate-100 shadow-sm ${result.prediction_label === "Kiyora User" ? "bg-rose-50 text-rose-500" : "bg-slate-50 text-slate-400"}`}>
+                  <CheckCircle2 className="h-10 w-10" />
                 </div>
                 <div>
                   <h3 className="text-slate-400 text-sm font-bold uppercase tracking-widest">ผลการวิเคราะห์</h3>
-                  <p className={`text-3xl font-black mt-2 ${result.prediction_label === "Kiyora User" ? "text-teal-500" : "text-rose-400"}`}>
+                  <p className={`text-3xl font-black mt-2 ${result.prediction_label === "Kiyora User" ? "text-rose-500" : "text-slate-600"}`}>
                     {result.prediction_label === "Kiyora User" ? "กลุ่มลูกค้า Kiyora" : "กลุ่มลูกค้าทั่วไป"}
                   </p>
                 </div>
-                <div className="p-8 bg-slate-50 rounded-[2rem] border border-white">
-                  <p className="text-slate-400 text-sm font-bold mb-3">ความน่าจะเป็น</p>
-                  <p className="text-5xl font-black text-slate-800">
+                <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                  <p className="text-slate-400 text-xs font-bold mb-2 uppercase tracking-widest">ความมั่นใจของ AI (Confidence)</p>
+                  <p className="text-4xl font-black text-slate-800">
                     {(result.probability["1 (Kiyora)"] * 100).toFixed(1)}%
                   </p>
-                  <div className="w-full bg-white h-3 rounded-full mt-6 overflow-hidden shadow-inner">
+                  <div className="w-full bg-slate-200 h-2 rounded-full mt-4 overflow-hidden">
                     <motion.div
-                      className="bg-gradient-to-r from-rose-300 to-rose-500 h-full"
+                      className="bg-rose-400 h-full rounded-full"
                       initial={{ width: 0 }}
                       animate={{ width: `${result.probability["1 (Kiyora)"] * 100}%` }}
                       transition={{ duration: 1.5, ease: "easeOut" }}
@@ -406,41 +376,41 @@ export default function SupervisedPage() {
 
                 {/* Personalized Advice / Marketing Strategy */}
                 <motion.div 
-                  className="text-left bg-teal-50/50 p-6 rounded-2xl border border-teal-100"
+                  className="text-left bg-white p-6 rounded-2xl border border-slate-200 shadow-sm"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.5 }}
                 >
-                  <h4 className="text-teal-800 font-black text-xs uppercase tracking-wider mb-4 flex items-center gap-2">
-                    <ShieldCheck className="h-4 w-4" />
-                    คำแนะนำเชิงกลยุทธ์
+                  <h4 className="text-slate-800 font-black text-xs uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <ShieldCheck className="h-4 w-4 text-rose-400" />
+                    คำแนะนำเชิงกลยุทธ์ (Actionable Insight)
                   </h4>
                   <ul className="space-y-3">
                     {/* Acne Advice */}
                     {formData.acne === "1" && (
-                      <li className="flex gap-3 text-xs font-medium text-teal-700 leading-relaxed">
-                        <div className="w-1.5 h-1.5 rounded-full bg-teal-400 mt-1.5 shrink-0" />
+                      <li className="flex gap-3 text-xs font-medium text-slate-600 leading-relaxed">
+                        <div className="w-1.5 h-1.5 rounded-full bg-rose-400 mt-1.5 shrink-0" />
                         ชูจุดเด่นเรื่องความอ่อนโยนต่อผิวเป็นสิว เพราะผู้ใช้ให้ความสำคัญกับสุขภาพผิวหน้าเป็นพิเศษ
                       </li>
                     )}
                     {/* Price Advice */}
                     {formData.price === "1" && (
-                      <li className="flex gap-3 text-xs font-medium text-teal-700 leading-relaxed">
-                        <div className="w-1.5 h-1.5 rounded-full bg-teal-400 mt-1.5 shrink-0" />
+                      <li className="flex gap-3 text-xs font-medium text-slate-600 leading-relaxed">
+                        <div className="w-1.5 h-1.5 rounded-full bg-rose-400 mt-1.5 shrink-0" />
                         เน้นโปรโมชั่น "ความคุ้มค่า" หรือจัดเซ็ตประหยัด เนื่องจากผู้ใช้มีความอ่อนไหวต่อราคา
                       </li>
                     )}
                     {/* Doctor Advice */}
                     {formData.doctor === "1" && (
-                      <li className="flex gap-3 text-xs font-medium text-teal-700 leading-relaxed">
-                        <div className="w-1.5 h-1.5 rounded-full bg-teal-400 mt-1.5 shrink-0" />
+                      <li className="flex gap-3 text-xs font-medium text-slate-600 leading-relaxed">
+                        <div className="w-1.5 h-1.5 rounded-full bg-rose-400 mt-1.5 shrink-0" />
                         ใช้ความน่าเชื่อถือทางการแพทย์ (Medical Endorsement) ในการสื่อสารเพื่อสร้างความมั่นใจ
                       </li>
                     )}
                     {/* Default Advice if none of the above matches strongly or general case */}
                     {formData.acne === "0" && formData.price === "0" && formData.doctor === "0" && (
-                      <li className="flex gap-3 text-xs font-medium text-teal-700 leading-relaxed">
-                        <div className="w-1.5 h-1.5 rounded-full bg-teal-400 mt-1.5 shrink-0" />
+                      <li className="flex gap-3 text-xs font-medium text-slate-600 leading-relaxed">
+                        <div className="w-1.5 h-1.5 rounded-full bg-rose-400 mt-1.5 shrink-0" />
                         เน้นการสร้าง Brand Awareness ผ่านภาพลักษณ์ที่ทันสมัยและตอบโจทย์ไลฟ์สไตล์ทั่วไป
                       </li>
                     )}
@@ -488,7 +458,7 @@ export default function SupervisedPage() {
               การเปรียบเทียบประสิทธิภาพโมเดล
             </h2>
             <p className="mt-1 text-slate-400 font-medium text-sm">
-              {`ทดสอบบน Test Set (20%) — ${modelData.testSize} ตัวอย่าง`}
+              {`ทดสอบบน Test Set (30%) — ${modelData.testSize} ตัวอย่าง`}
             </p>
           </div>
           {!loadingComp && usingFallback && (
@@ -500,7 +470,7 @@ export default function SupervisedPage() {
 
         {/* Loading state */}
         {loadingComp && (
-          <div className="bg-white rounded-[2rem] border border-rose-50 shadow-xl p-16 flex items-center justify-center gap-3 text-slate-400">
+          <div className="bg-white rounded-[2rem] border border-slate-200 shadow-sm p-16 flex items-center justify-center gap-3 text-slate-400">
             <Loader2 className="h-6 w-6 animate-spin" />
             <span className="font-medium text-sm">กำลังตรวจสอบข้อมูลจาก API...</span>
           </div>
@@ -508,12 +478,12 @@ export default function SupervisedPage() {
 
         {/* Table — always visible (fallback or live) */}
         {!loadingComp && (
-          <div className="bg-white rounded-[2rem] border border-rose-50 shadow-xl overflow-hidden">
-            <div className="grid grid-cols-5 bg-rose-50/60 border-b border-rose-100 px-6 py-4">
+          <div className="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden">
+            <div className="grid grid-cols-5 bg-slate-50 border-b border-slate-100 px-6 py-4">
               {["โมเดล", "Accuracy", "Precision", "Recall", "F1-Score"].map((h, i) => (
                 <p
                   key={h}
-                  className={`text-xs font-black text-slate-500 uppercase tracking-wider ${i === 0 ? "" : "text-center"}`}
+                  className={`text-[10px] font-bold text-slate-500 uppercase tracking-wider ${i === 0 ? "" : "text-center"}`}
                 >
                   {h}
                 </p>
@@ -524,7 +494,7 @@ export default function SupervisedPage() {
               <motion.div
                 key={m.name}
                 className={`grid grid-cols-5 items-center px-6 py-5 border-b border-slate-50 last:border-none transition-colors ${
-                  m.selected ? "bg-teal-50/40" : "hover:bg-slate-50/50"
+                  m.selected ? "bg-rose-50/50" : "hover:bg-slate-50/50"
                 }`}
                 initial={{ opacity: 0, x: -10 }}
                 whileInView={{ opacity: 1, x: 0 }}
@@ -533,11 +503,11 @@ export default function SupervisedPage() {
               >
                 <div className="flex items-center gap-2 flex-wrap">
                   {m.selected && (
-                    <span className="bg-teal-400 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0">
-                      ✓ เลือกใช้
+                    <span className="bg-rose-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0">
+                      ✓ โมเดลที่ใช้จริง
                     </span>
                   )}
-                  <span className={`text-sm font-bold ${m.selected ? "text-teal-700" : "text-slate-600"}`}>
+                  <span className={`text-sm font-bold ${m.selected ? "text-rose-700" : "text-slate-600"}`}>
                     {m.name}
                   </span>
                 </div>
@@ -550,12 +520,12 @@ export default function SupervisedPage() {
                 ].map((item, i) => (
                   <div key={i} className="flex flex-col items-center gap-1.5">
                     <div className="flex items-center gap-2">
-                      <span className="text-[9px] font-bold text-slate-300">TR:</span>
-                      <span className={`text-[11px] font-bold ${m.selected ? "text-teal-400" : "text-slate-400"}`}>
+                      <span className="text-[9px] font-bold text-slate-400">TR:</span>
+                      <span className={`text-[11px] font-bold ${m.selected ? "text-rose-400" : "text-slate-400"}`}>
                         {(item.valT * 100).toFixed(0)}%
                       </span>
-                      <span className="text-[9px] font-bold text-slate-300 ml-1">TS:</span>
-                      <span className={`text-sm font-black ${m.selected ? "text-teal-600" : "text-slate-700"}`}>
+                      <span className="text-[9px] font-bold text-slate-400 ml-1">TS:</span>
+                      <span className={`text-sm font-black ${m.selected ? "text-rose-600" : "text-slate-700"}`}>
                         {(item.valE * 100).toFixed(0)}%
                       </span>
                     </div>
@@ -567,7 +537,7 @@ export default function SupervisedPage() {
                       />
                       {/* Test Bar (Foreground) */}
                       <motion.div
-                        className={`absolute h-full rounded-full ${m.selected ? "bg-teal-400 shadow-sm" : "bg-rose-200"}`}
+                        className={`absolute h-full rounded-full ${m.selected ? "bg-rose-500 shadow-sm" : "bg-slate-400"}`}
                         initial={{ width: 0 }}
                         whileInView={{ width: `${item.valE * 100}%` }}
                         viewport={{ once: true }}
@@ -581,69 +551,54 @@ export default function SupervisedPage() {
           </div>
         )}
 
-        {/* Model Justification */}
+        {/* Executive Summary & AI Explainability */}
         {!loadingComp && modelData && (
           <motion.div
-            className="bg-white rounded-[2rem] border border-teal-100 shadow-sm overflow-hidden"
+            className="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden"
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <div className="bg-teal-50 px-8 py-5 border-b border-teal-100 flex items-center gap-3">
-              <ShieldCheck className="h-5 w-5 text-teal-500" />
-              <h3 className="font-black text-teal-800">Model Justification — เหตุผลในการเลือกโมเดล</h3>
+            <div className="bg-slate-50 px-8 py-5 border-b border-slate-100 flex items-center gap-3">
+              <ShieldCheck className="h-5 w-5 text-rose-500" />
+              <h3 className="font-black text-slate-800 text-lg">Executive Summary: ทำไมเราถึงไว้ใจ AI ตัวนี้?</h3>
             </div>
             <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <div className="w-2 h-2 rounded-full bg-teal-400 mt-2 shrink-0" />
-                  <p className="text-sm text-slate-600 font-medium leading-relaxed">
-                    <span className="font-black text-slate-800">โจทย์เป็นแบบ Binary Classification</span>
-                    {" "}— ทำนายว่าลูกค้าจะเลือกใช้ Kiyora (1) หรือไม่ (0)
+              <div className="space-y-6">
+                <div>
+                  <h4 className="text-sm font-black text-slate-800 mb-2 flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-rose-400" />
+                    ปัญหา: ข้อมูลลูกค้าจริงมีน้อย (Imbalanced Data)
+                  </h4>
+                  <p className="text-sm text-slate-500 leading-relaxed pl-4 border-l-2 border-slate-100">
+                    ในข้อมูลทั้งหมด มีลูกค้าที่ซื้อจริงเพียง 12% ถ้าปล่อยไว้ AI จะเดาว่า "ไม่มีใครซื้อหรอก" แล้วจะได้ความแม่นยำรวม (Accuracy) สูงถึง 87% แบบหลอกๆ ซึ่งในทางธุรกิจถือว่าใช้ไม่ได้ เพราะเราจะหาลูกค้าใหม่ไม่เจอเลย
                   </p>
                 </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-2 h-2 rounded-full bg-teal-400 mt-2 shrink-0" />
-                  <p className="text-sm text-slate-600 font-medium leading-relaxed">
-                    <span className="font-black text-slate-800">ข้อมูลไม่สมดุล (Imbalanced Data)</span>
-                    {" "}— Class 0 มี 72 ตัวอย่าง vs Class 1 มีเพียง 10 ตัวอย่าง
-                    จึงใช้{" "}
-                    <code className="bg-slate-100 px-1.5 rounded text-xs font-mono text-rose-600">
-                      class_weight="balanced"
-                    </code>
-                    {" "}เพื่อชดเชย
-                  </p>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-2 h-2 rounded-full bg-teal-400 mt-2 shrink-0" />
-                  <p className="text-sm text-slate-600 font-medium leading-relaxed">
-                    <span className="font-black text-slate-800">เลือก Logistic Regression</span>
-                    {" "}— เพราะให้ค่า Recall สูงสุด (50%) สำหรับ Class 1 ซึ่งสำคัญกว่า Precision
-                    ในบริบทของการหาลูกค้าเป้าหมาย
+                <div>
+                  <h4 className="text-sm font-black text-slate-800 mb-2 flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-rose-400" />
+                    ทางแก้: ใช้เทคนิคจำลองข้อมูล (SMOTE)
+                  </h4>
+                  <p className="text-sm text-slate-500 leading-relaxed pl-4 border-l-2 border-slate-100">
+                    เราใช้คณิตศาสตร์สร้าง "ฝาแฝด" ของลูกค้ากลุ่มน้อยขึ้นมาในระบบ (Synthetic Data) เพื่อให้คะแนนเสียงมันเท่ากัน AI จึงเรียนรู้ที่จะแยกแยะความแตกต่างได้อย่างยุติธรรม ไม่เข้าข้างกลุ่มใดกลุ่มหนึ่ง
                   </p>
                 </div>
               </div>
-              <div className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <div className="w-2 h-2 rounded-full bg-rose-300 mt-2 shrink-0" />
-                  <p className="text-sm text-slate-600 font-medium leading-relaxed">
-                    <span className="font-black text-slate-800">Random Forest {"&"} KNN</span>
-                    {" "}— Accuracy สูง (82%, 88%) แต่ Recall = 0% เพราะไม่รองรับ Imbalanced Data
+              <div className="space-y-6">
+                <div>
+                  <h4 className="text-sm font-black text-slate-800 mb-2 flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-rose-400" />
+                    การจูนความฉลาด (GridSearchCV)
+                  </h4>
+                  <p className="text-sm text-slate-500 leading-relaxed pl-4 border-l-2 border-slate-100">
+                    เราไม่ได้ใช้ค่าเดิมๆ จากโรงงาน แต่สั่งให้ระบบทดลองปรับแต่งชิ้นส่วนของโมเดลนับร้อยแบบโดยอัตโนมัติ เพื่อเฟ้นหาโมเดลเวอร์ชันที่เก่งที่สุดสำหรับ Kiyora โดยเฉพาะ
                   </p>
                 </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-2 h-2 rounded-full bg-rose-300 mt-2 shrink-0" />
-                  <p className="text-sm text-slate-600 font-medium leading-relaxed">
-                    <span className="font-black text-slate-800">SVM</span>
-                    {" "}— ให้ผลใกล้เคียง Logistic Regression แต่ซับซ้อนกว่าโดยไม่จำเป็น
-                  </p>
-                </div>
-                <div className="p-4 bg-teal-50 rounded-2xl border border-teal-100 mt-2">
-                  <p className="text-xs font-bold text-teal-700 leading-relaxed">
-                    💡 <span className="font-black">สรุป:</span>{" "}
-                    ในบริบทการหาลูกค้า Kiyora การ "ไม่พลาด" ลูกค้าที่สนใจ (Recall)
-                    สำคัญกว่าความแม่นยำที่สูงแต่พลาดกลุ่มเป้าหมาย
-                    จึงเลือก Logistic Regression เป็นโมเดลหลัก
+                <div className="p-5 bg-rose-50 rounded-2xl border border-rose-100">
+                  <p className="text-xs font-bold text-rose-800 leading-relaxed">
+                    💡 <span className="font-black text-rose-600">Business Impact:</span>{" "}
+                    เราเลือกใช้ <span className="underline">Logistic Regression</span> เป็นโมเดลหลัก เพราะให้ค่าการตรวจจับ (Recall) ถึง 100% 
+                    หมายความว่า <b>"ถ้ามีลูกค้าที่มีแนวโน้มจะซื้อเดินเข้ามา AI ตัวนี้จะไม่ปล่อยให้หลุดมือไปแม้แต่คนเดียว"</b> ซึ่งตอบโจทย์เป้าหมายการรุกตลาดมากที่สุดครับ
                   </p>
                 </div>
               </div>
