@@ -106,7 +106,7 @@ const FALLBACK_DATA: UnsupervisedData = {
 };
 
 export default function UnsupervisedPage() {
-  const [data, setData] = useState<UnsupervisedData | null>(null);
+  const [data, setData] = useState<UnsupervisedData>(FALLBACK_DATA);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [usingFallback, setUsingFallback] = useState(false);
