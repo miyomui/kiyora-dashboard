@@ -59,22 +59,75 @@ interface UnsupervisedData {
   };
 }
 
+/* ── Fallback Data (used when API is unavailable) ──────────────────── */
+const FALLBACK_DATA: UnsupervisedData = {
+  summary: { total_count: 82, anomaly_count: 5, cluster_counts: { "0": 26, "1": 15, "2": 41 } },
+  clusters: [
+    { pca_1: -1.36, pca_2: 3.91, cluster: 0, anomaly_score: 1 },
+    { pca_1: 1.29, pca_2: 1.03, cluster: 2, anomaly_score: 0 },
+    { pca_1: -2.01, pca_2: 1.11, cluster: 0, anomaly_score: 0 },
+    { pca_1: 0.13, pca_2: -1.05, cluster: 2, anomaly_score: 0 },
+    { pca_1: -1.32, pca_2: 0.79, cluster: 0, anomaly_score: 0 },
+    { pca_1: -0.72, pca_2: -0.60, cluster: 1, anomaly_score: 0 },
+    { pca_1: 2.22, pca_2: -0.67, cluster: 2, anomaly_score: 0 },
+    { pca_1: -1.10, pca_2: 1.40, cluster: 0, anomaly_score: 0 },
+  ],
+  personas: [
+    {
+      id: 0,
+      name: "The Derma-Influenced Seeker",
+      description: "กลุ่มลูกค้าที่ได้รับอิทธิพลจากแพทย์และผู้เชี่ยวชาญ ให้ความสำคัญกับผิวบอบบางและความสะอาดเชิงลึก",
+      stats: { "deep_cleansing_score": 0.98, "sensitive_skin_score": 0.96, "eye_friendly_score": 0.86, "low_friction_score": 0.78, "acne_friendly_score": 0.73 }
+    },
+    {
+      id: 1,
+      name: "The Smart Budgeter",
+      description: "กลุ่มลูกค้าที่เน้นความคุ้มค่าและราคาเป็นหลัก มักตัดสินใจจากโปรโมชั่น",
+      stats: { "moisturizing_score": 0.8, "low_friction_score": 0.71, "is_price_sensitive": 0.87, "eye_friendly_score": 0.7, "oil_control_score": 0.68 }
+    },
+    {
+      id: 2,
+      name: "The All-Round Skincare Enthusiast",
+      description: "กลุ่มลูกค้าที่ใส่ใจทุกด้าน มีความกังวลเรื่องผิวหลายประเด็น และต้องการผลิตภัณฑ์ที่ตอบโจทย์รอบด้าน",
+      stats: { "eye_friendly_score": 0.96, "acne_friendly_score": 0.95, "oil_control_score": 0.95, "sensitive_skin_score": 0.95, "deep_cleansing_score": 0.94 }
+    }
+  ],
+  correlation: {
+    columns: ["deep_cleansing", "acne_friendly", "sensitive_skin", "moisturizing", "oil_control"],
+    values: [
+      [1.0, 0.27, 0.42, 0.11, -0.02],
+      [0.27, 1.0, 0.29, 0.09, 0.39],
+      [0.42, 0.29, 1.0, 0.05, 0.15],
+      [0.11, 0.09, 0.05, 1.0, 0.37],
+      [-0.02, 0.39, 0.15, 0.37, 1.0]
+    ]
+  },
+  stats: {}
+};
+
 export default function UnsupervisedPage() {
   const [data, setData] = useState<UnsupervisedData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [usingFallback, setUsingFallback] = useState(false);
   const [activeTab, setActiveTab] = useState<"clusters" | "correlation" | "personas">("personas");
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await fetch("http://localhost:8000/unsupervised");
-        if (!response.ok) throw new Error("Failed to fetch unsupervised data");
+        // Priority: Env Var > Production Render > Localhost
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://kiyora-dashboard.onrender.com";
+        
+        const response = await fetch(`${apiUrl}/unsupervised`);
+        if (!response.ok) throw new Error("API response not ok");
         const json = await response.json();
         setData(json);
+        setUsingFallback(false);
       } catch (err: any) {
-        setError(err.message);
+        console.warn("Unsupervised API failed, using fallback data:", err.message);
+        setData(FALLBACK_DATA);
+        setUsingFallback(true);
       } finally {
         setLoading(false);
       }
@@ -92,26 +145,22 @@ export default function UnsupervisedPage() {
     );
   }
 
-  if (error || !data) {
-    return (
-      <div className="bg-rose-50 border border-rose-100 p-6 rounded-3xl text-center max-w-lg mx-auto mt-20">
-        <AlertTriangle className="h-12 w-12 text-rose-400 mx-auto mb-4" />
-        <h2 className="text-xl font-bold text-rose-800 mb-2">เกิดข้อผิดพลาดในการโหลดข้อมูล</h2>
-        <p className="text-rose-600 mb-6">{error || "กรุณาตรวจสอบว่า Backend Server รันอยู่"}</p>
-        <button 
-          onClick={() => window.location.reload()}
-          className="px-6 py-2 bg-rose-500 text-white rounded-full font-bold hover:bg-rose-600 transition-colors"
-        >
-          ลองใหม่อีกครั้ง
-        </button>
-      </div>
-    );
-  }
-
+  // No longer returning early on error, we use Fallback instead
   const COLORS = ["#f43f5e", "#10b981", "#3b82f6", "#f59e0b"];
 
   return (
     <div className="space-y-10 pb-20">
+      {/* Fallback Notice */}
+      {usingFallback && (
+        <div className="bg-amber-50 border border-amber-100 p-4 rounded-2xl flex items-center gap-3 text-amber-700 text-sm">
+          <AlertTriangle className="h-5 w-5 shrink-0" />
+          <p>
+            <b>ข้อมูลสถิต (Offline Mode):</b> กำลังแสดงข้อมูลตัวอย่างเนื่องจากไม่สามารถเชื่อมต่อ Server ได้ 
+            (หากคุณเป็นแอดมิน กรุณาตรวจสอบการตั้งค่า Backend)
+          </p>
+        </div>
+      )}
+
       {/* Header & Stats Overview */}
       <section className="relative overflow-hidden rounded-[3rem] bg-gradient-to-br from-slate-900 to-slate-800 p-8 md:p-12 text-white">
         <div className="absolute top-0 right-0 -m-20 w-80 h-80 bg-rose-500/10 rounded-full blur-3xl" />

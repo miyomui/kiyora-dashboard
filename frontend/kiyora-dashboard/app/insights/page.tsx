@@ -121,7 +121,7 @@ export default function InsightsPage() {
   const [usingFallback, setUsingFallback] = useState(false);
 
   useEffect(() => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://kiyora-dashboard.onrender.com";
     fetch(`${apiUrl}/insights`)
       .then((r) => { if (!r.ok) throw new Error(); return r.json(); })
       .then((d) => { setData(d); setUsingFallback(false); })

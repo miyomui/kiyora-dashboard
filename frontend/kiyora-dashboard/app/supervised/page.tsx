@@ -106,7 +106,7 @@ export default function SupervisedPage() {
 
   // Try to fetch live data from API; fall back to static data if unavailable
   useEffect(() => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://kiyora-dashboard.onrender.com";
     fetch(`${apiUrl}/model-comparison`)
       .then((r) => {
         if (!r.ok) throw new Error("API error");
@@ -142,7 +142,7 @@ export default function SupervisedPage() {
         acne_friendly_score: formData.acne_score / 5.0,
         gender:             parseInt(formData.gender),
       };
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://kiyora-dashboard.onrender.com";
       const response = await fetch(`${apiUrl}/predict`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
