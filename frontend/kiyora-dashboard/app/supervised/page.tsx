@@ -344,6 +344,53 @@ export default function SupervisedPage() {
                     />
                   </div>
                 </div>
+
+                {/* Personalized Advice / Marketing Strategy */}
+                <motion.div 
+                  className="text-left bg-teal-50/50 p-6 rounded-2xl border border-teal-100"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5 }}
+                >
+                  <h4 className="text-teal-800 font-black text-xs uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <ShieldCheck className="h-4 w-4" />
+                    คำแนะนำเชิงกลยุทธ์
+                  </h4>
+                  <ul className="space-y-3">
+                    {/* Acne Advice */}
+                    {formData.acne === "1" && (
+                      <li className="flex gap-3 text-xs font-medium text-teal-700 leading-relaxed">
+                        <div className="w-1.5 h-1.5 rounded-full bg-teal-400 mt-1.5 shrink-0" />
+                        ชูจุดเด่นเรื่องความอ่อนโยนต่อผิวเป็นสิว เพราะผู้ใช้ให้ความสำคัญกับสุขภาพผิวหน้าเป็นพิเศษ
+                      </li>
+                    )}
+                    {/* Price Advice */}
+                    {formData.price === "1" && (
+                      <li className="flex gap-3 text-xs font-medium text-teal-700 leading-relaxed">
+                        <div className="w-1.5 h-1.5 rounded-full bg-teal-400 mt-1.5 shrink-0" />
+                        เน้นโปรโมชั่น "ความคุ้มค่า" หรือจัดเซ็ตประหยัด เนื่องจากผู้ใช้มีความอ่อนไหวต่อราคา
+                      </li>
+                    )}
+                    {/* Doctor Advice */}
+                    {formData.doctor === "1" && (
+                      <li className="flex gap-3 text-xs font-medium text-teal-700 leading-relaxed">
+                        <div className="w-1.5 h-1.5 rounded-full bg-teal-400 mt-1.5 shrink-0" />
+                        ใช้ความน่าเชื่อถือทางการแพทย์ (Medical Endorsement) ในการสื่อสารเพื่อสร้างความมั่นใจ
+                      </li>
+                    )}
+                    {/* Default Advice if none of the above matches strongly or general case */}
+                    {formData.acne === "0" && formData.price === "0" && formData.doctor === "0" && (
+                      <li className="flex gap-3 text-xs font-medium text-teal-700 leading-relaxed">
+                        <div className="w-1.5 h-1.5 rounded-full bg-teal-400 mt-1.5 shrink-0" />
+                        เน้นการสร้าง Brand Awareness ผ่านภาพลักษณ์ที่ทันสมัยและตอบโจทย์ไลฟ์สไตล์ทั่วไป
+                      </li>
+                    )}
+                  </ul>
+                </motion.div>
+
+                <p className="text-[10px] text-slate-400 font-bold italic">
+                  * ผลการวิเคราะห์อ้างอิงจากโมเดล Logistic Regression ที่ผ่านการจูนพารามิเตอร์แล้ว
+                </p>
               </motion.div>
             ) : predError ? (
               <motion.div
