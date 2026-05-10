@@ -37,6 +37,7 @@
 
 ## 📂 โครงสร้างโปรเจกต์
 
+
 ├── api/
 │   └── main.py                    # FastAPI endpoints
 ├── src/
@@ -123,19 +124,6 @@ clean.csv
 
 ---
 
----
-
-## 📄 รายงานสรุปผลโครงการ (Reports)
-
-สามารถอ่านรายละเอียดเชิงลึกได้ที่โฟลเดอร์ `docs/`:
-1. [Business Problem Statement](docs/problem_statement.md)
-2. [Data Preprocessing & Preparation](docs/data_preprocessing.md)
-3. [Unsupervised Learning (Segmentation)](docs/unsupervised_report.md)
-4. [Supervised Learning (Model Selection)](docs/supervised_report.md)
-5. [Strategic Marketing Recommendations](docs/strategic_recommendations.md)
-6. [Source Code Summary Report](docs/source_code_report.md)
-
----
 
 ## 👥 ทีมผู้พัฒนา
 
