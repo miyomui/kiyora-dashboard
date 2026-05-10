@@ -1,419 +1,367 @@
 "use client";
 
-import { motion } from "framer-motion";
-import {
-  BarChart3,
-  CircleDot,
-  Layers,
-  Zap,
-  Users,
+import { useState, useEffect } from "react";
+import { 
+  BarChart3, 
+  Users, 
+  AlertTriangle, 
+  Fingerprint, 
+  Info,
+  ChevronRight,
   Target,
-  Lightbulb,
+  Zap,
   ShieldCheck,
-  Sparkles,
-  HeartHandshake,
-  Stethoscope,
-  BadgeDollarSign,
+  TrendingUp,
+  Grid
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  ScatterChart, 
+  Scatter, 
+  XAxis, 
+  YAxis, 
+  ZAxis, 
+  Tooltip, 
+  ResponsiveContainer,
+  Cell,
+  Legend
+} from "recharts";
 
-// ── Indicators ─────────────────────────────────────────────────────────────
-const indicators = [
-  {
-    label: "Silhouette Score",
-    value: "0.42",
-    desc: "ความชัดเจนในการแบ่งกลุ่ม (ยิ่งสูงยิ่งดี)",
-    icon: CircleDot,
-    color: "text-emerald-500",
-    bg: "bg-emerald-50",
-    border: "border-emerald-100",
-  },
-  {
-    label: "Davies-Bouldin Index",
-    value: "0.85",
-    desc: "ความซ้อนทับระหว่างกลุ่ม (ยิ่งต่ำยิ่งดี)",
-    icon: Zap,
-    color: "text-orange-400",
-    bg: "bg-orange-50",
-    border: "border-orange-100",
-  },
-  {
-    label: "Calinski-Harabasz",
-    value: "1,245",
-    desc: "ความหนาแน่นภายในกลุ่มเทียบกับระหว่างกลุ่ม",
-    icon: Layers,
-    color: "text-blue-500",
-    bg: "bg-blue-50",
-    border: "border-blue-100",
-  },
-  {
-    label: "จำนวนกลุ่มที่เหมาะสม (k)",
-    value: "3 กลุ่ม",
-    desc: "วิเคราะห์จาก Elbow Method",
-    icon: BarChart3,
-    color: "text-rose-400",
-    bg: "bg-rose-50",
-    border: "border-rose-100",
-  },
-];
+// Types based on the API response
+interface Persona {
+  id: number;
+  name: string;
+  description: string;
+  stats: Record<string, number>;
+}
 
-// ── Customer Personas ───────────────────────────────────────────────────────
-const personas = [
-  {
-    id: 1,
-    name: "กลุ่ม Expert-Driven",
-    name_en: "Cluster 1 — Doctor-Driven",
-    percent: 38,
-    size: 912,
-    color: "from-teal-100 to-teal-50",
-    accent: "bg-teal-400",
-    accentText: "text-teal-600",
-    border: "border-teal-100",
-    icon: Stethoscope,
-    iconColor: "text-teal-500",
-    iconBg: "bg-teal-50",
-    traits: [
-      { label: "อิทธิพลจากแพทย์", pct: 85 },
-      { label: "ความอ่อนโยนสูตร", pct: 72 },
-      { label: "ความอ่อนไหวต่อราคา", pct: 30 },
-    ],
-    desc: "กลุ่มที่ตัดสินใจซื้อจากคำแนะนำของแพทย์ผิวหนังและผู้เชี่ยวชาญ ให้ความสำคัญกับสูตรที่อ่อนโยนต่อผิวแพ้สิว",
-    strategy: "ใช้ Expert Content & Medical Influencer",
-    strategyDetail: "เน้นนำเสนอผ่านแพทย์ผิวหนัง รีวิวจากผู้เชี่ยวชาญ และ Clinical Evidence",
-  },
-  {
-    id: 2,
-    name: "กลุ่ม Trend Follower",
-    name_en: "Cluster 2 — Social-Driven",
-    percent: 35,
-    size: 840,
-    color: "from-rose-100 to-rose-50",
-    accent: "bg-rose-400",
-    accentText: "text-rose-600",
-    border: "border-rose-100",
-    icon: HeartHandshake,
-    iconColor: "text-rose-500",
-    iconBg: "bg-rose-50",
-    traits: [
-      { label: "อิทธิพลจากเพื่อน", pct: 82 },
-      { label: "ความอ่อนโยนสูตร", pct: 60 },
-      { label: "ความอ่อนไหวต่อราคา", pct: 50 },
-    ],
-    desc: "กลุ่มที่รับอิทธิพลจากเพื่อนและ Social Media เป็นหลัก ชอบทดลองสินค้าใหม่และแชร์ประสบการณ์",
-    strategy: "ใช้ Word-of-Mouth & Social Campaign",
-    strategyDetail: "ทำโปรแกรมแนะนำเพื่อน สร้าง User-Generated Content และ Community ออนไลน์",
-  },
-  {
-    id: 3,
-    name: "กลุ่ม Value Seeker",
-    name_en: "Cluster 3 — Price-Driven",
-    percent: 27,
-    size: 648,
-    color: "from-amber-100 to-amber-50",
-    accent: "bg-amber-400",
-    accentText: "text-amber-600",
-    border: "border-amber-100",
-    icon: BadgeDollarSign,
-    iconColor: "text-amber-500",
-    iconBg: "bg-amber-50",
-    traits: [
-      { label: "ความอ่อนไหวต่อราคา", pct: 90 },
-      { label: "อิทธิพลจากเพื่อน", pct: 45 },
-      { label: "ความอ่อนโยนสูตร", pct: 40 },
-    ],
-    desc: "กลุ่มที่เน้นความคุ้มค่าของราคาเป็นหลัก ตัดสินใจซื้อเมื่อมีโปรโมชันหรือราคาพิเศษ",
-    strategy: "ใช้ Promotion & Bundle Deal",
-    strategyDetail: "ออกแบบแพ็กเกจราคาประหยัด โปรโมชันพิเศษ และโปรแกรมสะสมแต้มที่ชัดเจน",
-  },
-];
+interface ClusterPoint {
+  pca_1: number;
+  pca_2: number;
+  cluster: number;
+  anomaly_score: number;
+}
 
-// ── PCA Cluster dots (visual representation) ───────────────────────────────
-const clusterDots = [
-  // Cluster 1 — Teal
-  ...Array.from({ length: 22 }, (_, i) => ({
-    x: 20 + (i % 5) * 6 + Math.sin(i) * 4,
-    y: 25 + Math.floor(i / 5) * 6 + Math.cos(i) * 3,
-    color: "bg-teal-300",
-    cluster: 0,
-  })),
-  // Cluster 2 — Rose
-  ...Array.from({ length: 20 }, (_, i) => ({
-    x: 55 + (i % 5) * 6 + Math.sin(i + 2) * 4,
-    y: 15 + Math.floor(i / 5) * 6 + Math.cos(i + 2) * 3,
-    color: "bg-rose-300",
-    cluster: 1,
-  })),
-  // Cluster 3 — Amber
-  ...Array.from({ length: 16 }, (_, i) => ({
-    x: 38 + (i % 4) * 6 + Math.sin(i + 4) * 3,
-    y: 55 + Math.floor(i / 4) * 6 + Math.cos(i + 4) * 3,
-    color: "bg-amber-300",
-    cluster: 2,
-  })),
-];
+interface CorrelationData {
+  columns: string[];
+  values: number[][];
+}
+
+interface UnsupervisedData {
+  stats: Record<string, any>;
+  correlation: CorrelationData;
+  clusters: ClusterPoint[];
+  personas: Persona[];
+  summary: {
+    total_count: number;
+    anomaly_count: number;
+    cluster_counts: Record<string, number>;
+  };
+}
 
 export default function UnsupervisedPage() {
+  const [data, setData] = useState<UnsupervisedData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<"clusters" | "correlation" | "personas">("personas");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch("http://localhost:8000/unsupervised");
+        if (!response.ok) throw new Error("Failed to fetch unsupervised data");
+        const json = await response.json();
+        setData(json);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <div className="w-12 h-12 border-4 border-rose-100 border-t-rose-400 rounded-full animate-spin" />
+        <p className="text-slate-400 font-medium animate-pulse">กำลังวิเคราะห์ข้อมูลเชิงลึก...</p>
+      </div>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <div className="bg-rose-50 border border-rose-100 p-6 rounded-3xl text-center max-w-lg mx-auto mt-20">
+        <AlertTriangle className="h-12 w-12 text-rose-400 mx-auto mb-4" />
+        <h2 className="text-xl font-bold text-rose-800 mb-2">เกิดข้อผิดพลาดในการโหลดข้อมูล</h2>
+        <p className="text-rose-600 mb-6">{error || "กรุณาตรวจสอบว่า Backend Server รันอยู่"}</p>
+        <button 
+          onClick={() => window.location.reload()}
+          className="px-6 py-2 bg-rose-500 text-white rounded-full font-bold hover:bg-rose-600 transition-colors"
+        >
+          ลองใหม่อีกครั้ง
+        </button>
+      </div>
+    );
+  }
+
+  const COLORS = ["#f43f5e", "#10b981", "#3b82f6", "#f59e0b"];
+
   return (
     <div className="space-y-10 pb-20">
-      {/* ── Header ── */}
-      <section>
-        <h1 className="text-3xl font-bold text-slate-800">
-          การจัดกลุ่มลูกค้า (Unsupervised Learning)
-        </h1>
-        <p className="mt-2 text-slate-400 font-medium">
-          วิเคราะห์พฤติกรรมและแบ่งกลุ่มลูกค้าด้วย K-Means Clustering และ PCA
-        </p>
-      </section>
-
-      {/* ── Indicators Panel ── */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {indicators.map((ind, idx) => (
-          <motion.div
-            key={idx}
-            className={`bg-white p-8 rounded-[2rem] border ${ind.border} shadow-sm`}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: idx * 0.1 }}
-          >
-            <div className={`w-12 h-12 ${ind.bg} ${ind.color} rounded-2xl flex items-center justify-center mb-5`}>
-              <ind.icon className="h-6 w-6" />
-            </div>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">{ind.label}</p>
-            <p className="text-2xl font-black text-slate-800 mt-1">{ind.value}</p>
-            <p className="text-xs text-slate-400 mt-2 font-medium leading-relaxed">{ind.desc}</p>
-          </motion.div>
-        ))}
-      </section>
-
-      {/* ── Cluster Distribution (PCA Visual) + Pie ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        {/* PCA Scatter Visual */}
-        <section className="bg-white p-6 sm:p-10 rounded-[2rem] sm:rounded-[3rem] border border-rose-50 shadow-xl">
-          <h2 className="text-xl font-bold text-slate-800 mb-2 flex items-center gap-2">
-            <BarChart3 className="h-5 w-5 text-rose-400" />
-            การกระจายตัวของกลุ่ม (PCA 2D)
-          </h2>
-          <p className="text-xs text-slate-400 font-medium mb-8">
-            ลดมิติข้อมูลด้วย Principal Component Analysis เพื่อแสดงการแบ่งกลุ่ม
-          </p>
-
-          {/* Scatter Plot */}
-          <div className="relative w-full aspect-square bg-slate-50 rounded-[1.5rem] border border-slate-100 overflow-hidden">
-            {/* Axis labels */}
-            <span className="absolute bottom-3 left-1/2 -translate-x-1/2 text-[10px] font-bold text-slate-300 uppercase tracking-widest">
-              PC1
-            </span>
-            <span className="absolute top-1/2 left-3 -translate-y-1/2 -rotate-90 text-[10px] font-bold text-slate-300 uppercase tracking-widest">
-              PC2
-            </span>
-
-            {clusterDots.map((dot, i) => (
-              <motion.div
-                key={i}
-                className={`absolute w-3 h-3 rounded-full ${dot.color} opacity-80`}
-                style={{ left: `${dot.x}%`, top: `${dot.y}%` }}
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 0.8 }}
-                transition={{ delay: 0.3 + i * 0.015, type: "spring" }}
-              />
-            ))}
-
-            {/* Legend */}
-            <div className="absolute bottom-4 right-4 space-y-1.5">
-              {[
-                { label: "Cluster 1", color: "bg-teal-300" },
-                { label: "Cluster 2", color: "bg-rose-300" },
-                { label: "Cluster 3", color: "bg-amber-300" },
-              ].map((l) => (
-                <div key={l.label} className="flex items-center gap-2">
-                  <div className={`w-2.5 h-2.5 rounded-full ${l.color}`} />
-                  <span className="text-[10px] font-bold text-slate-400">{l.label}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Segment Distribution */}
-        <section className="bg-white p-6 sm:p-10 rounded-[2rem] sm:rounded-[3rem] border border-rose-50 shadow-xl flex flex-col justify-between">
+      {/* Header & Stats Overview */}
+      <section className="relative overflow-hidden rounded-[3rem] bg-gradient-to-br from-slate-900 to-slate-800 p-8 md:p-12 text-white">
+        <div className="absolute top-0 right-0 -m-20 w-80 h-80 bg-rose-500/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 -m-20 w-80 h-80 bg-teal-500/10 rounded-full blur-3xl" />
+        
+        <div className="relative flex flex-col md:flex-row items-center justify-between gap-8">
           <div>
-            <h2 className="text-xl font-bold text-slate-800 mb-2 flex items-center gap-2">
-              <Users className="h-5 w-5 text-rose-400" />
-              สัดส่วนกลุ่มลูกค้า
-            </h2>
-            <p className="text-xs text-slate-400 font-medium mb-8">
-              จากกลุ่มตัวอย่างทั้งหมด 2,400 คน แบ่งด้วย K-Means (k=3)
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/10 text-rose-300 text-xs font-bold uppercase tracking-widest mb-4">
+              <BarChart3 className="h-3 w-3" />
+              Unsupervised Learning Mode
+            </div>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight">การจัดกลุ่มลูกค้า<br /><span className="text-teal-300">& วิเคราะห์ข้อมูลเชิงลึก</span></h1>
+            <p className="text-slate-300 text-lg max-w-xl leading-relaxed">
+              ค้นหาความสัมพันธ์ที่ซ่อนอยู่และแบ่งกลุ่มลูกค้า (Customer Segmentation) 
+              จากพฤติกรรมจริงเพื่อสร้างกลยุทธ์ที่ตอบโจทย์แต่ละคน
             </p>
           </div>
 
-          <div className="space-y-6">
-            {personas.map((p, idx) => (
-              <motion.div
-                key={p.id}
-                className="space-y-2"
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4 + idx * 0.15 }}
-              >
-                <div className="flex justify-between items-center text-sm">
-                  <div className="flex items-center gap-2">
-                    <div className={`w-2.5 h-2.5 rounded-full ${p.accent}`} />
-                    <span className="font-bold text-slate-700">{p.name}</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs font-medium text-slate-400">{p.size.toLocaleString()} คน</span>
-                    <span className={`font-black ${p.accentText}`}>{p.percent}%</span>
-                  </div>
-                </div>
-                <div className="w-full bg-slate-50 h-3 rounded-full overflow-hidden shadow-inner">
-                  <motion.div
-                    className={`${p.accent} h-full rounded-full`}
-                    initial={{ width: 0 }}
-                    animate={{ width: `${p.percent}%` }}
-                    transition={{ duration: 1.2, delay: 0.6 + idx * 0.15, ease: "easeOut" }}
-                  />
-                </div>
-              </motion.div>
-            ))}
+          <div className="grid grid-cols-2 gap-4 w-full md:w-auto">
+            <div className="bg-white/5 backdrop-blur-md p-6 rounded-3xl border border-white/10">
+              <div className="text-teal-300 font-bold text-3xl">{data.summary.total_count}</div>
+              <div className="text-slate-400 text-xs font-bold uppercase mt-1">จำนวนข้อมูลทั้งหมด</div>
+            </div>
+            <div className="bg-white/5 backdrop-blur-md p-6 rounded-3xl border border-white/10">
+              <div className="text-rose-400 font-bold text-3xl">{data.summary.anomaly_count}</div>
+              <div className="text-slate-400 text-xs font-bold uppercase mt-1">ข้อมูลผิดปกติ (Anomalies)</div>
+            </div>
           </div>
+        </div>
+      </section>
 
-          <div className="mt-8 p-5 bg-slate-50 rounded-2xl border border-slate-100">
-            <p className="text-xs text-slate-500 font-medium leading-relaxed">
-              <span className="font-black text-slate-700">วิธีการ:</span>{" "}
-              ใช้ StandardScaler ปรับขนาดข้อมูล → K-Means (k=3) แบ่งกลุ่ม → PCA (2D) แสดงผล
-              โดยเลือก k=3 จาก Elbow Method ที่ inertia เริ่มคงที่
-            </p>
-          </div>
-        </section>
+      {/* Tabs Control */}
+      <div className="flex flex-wrap gap-3">
+        {[
+          { id: "personas", name: "Customer Personas", icon: Users },
+          { id: "clusters", name: "Clustering Visualization", icon: Target },
+          { id: "correlation", name: "Behavior Correlation", icon: TrendingUp },
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id as any)}
+            className={`flex items-center gap-2 px-6 py-3 rounded-full font-bold text-sm transition-all duration-300 ${
+              activeTab === tab.id 
+              ? "bg-rose-500 text-white shadow-lg shadow-rose-200" 
+              : "bg-white text-slate-500 border border-slate-100 hover:bg-slate-50"
+            }`}
+          >
+            <tab.icon className="h-4 w-4" />
+            {tab.name}
+          </button>
+        ))}
       </div>
 
-      {/* ── Customer Persona Cards ── */}
-      <section className="space-y-6">
-        <div>
-          <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-            <Target className="h-7 w-7 text-rose-400" />
-            Customer Persona รายกลุ่ม
-          </h2>
-          <p className="mt-1 text-slate-400 font-medium text-sm">
-            ลักษณะเด่นและพฤติกรรมการซื้อของลูกค้าในแต่ละ Cluster
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {personas.map((p, idx) => (
-            <motion.div
-              key={p.id}
-              className={`bg-gradient-to-br ${p.color} rounded-[2.5rem] border ${p.border} p-8 flex flex-col gap-6 hover:shadow-lg transition-all`}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: idx * 0.12 }}
-            >
-              {/* Header */}
-              <div className="flex items-start gap-4">
-                <div className={`p-3 ${p.iconBg} rounded-2xl shadow-sm`}>
-                  <p.icon className={`h-6 w-6 ${p.iconColor}`} />
+      {/* Content Area */}
+      <AnimatePresence mode="wait">
+        {activeTab === "personas" && (
+          <motion.div
+            key="personas"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="grid grid-cols-1 md:grid-cols-3 gap-6"
+          >
+            {data.personas.map((persona, idx) => (
+              <div 
+                key={persona.id}
+                className="group relative bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300"
+              >
+                <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity">
+                  <Fingerprint className="h-20 w-20" />
                 </div>
+                
+                <div 
+                  className="w-16 h-16 rounded-3xl mb-6 flex items-center justify-center"
+                  style={{ backgroundColor: `${COLORS[idx % COLORS.length]}20`, color: COLORS[idx % COLORS.length] }}
+                >
+                  <Users className="h-8 w-8" />
+                </div>
+                
+                <h3 className="text-2xl font-bold text-slate-800 mb-2">{persona.name}</h3>
+                <p className="text-slate-400 text-sm leading-relaxed mb-8">{persona.description}</p>
+                
+                <div className="space-y-4">
+                  <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">คุณลักษณะหลัก</div>
+                  {Object.entries(persona.stats).filter(([_, v]) => v > 0.5).slice(0, 4).map(([k, v]) => (
+                    <div key={k} className="space-y-1.5">
+                      <div className="flex justify-between text-xs font-medium">
+                        <span className="text-slate-600">{k.replace(/_/g, ' ')}</span>
+                        <span className="text-slate-400">{(v * 100).toFixed(0)}%</span>
+                      </div>
+                      <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                        <div 
+                          className="h-full rounded-full transition-all duration-1000 delay-300"
+                          style={{ 
+                            width: `${v * 100}%`, 
+                            backgroundColor: COLORS[idx % COLORS.length] 
+                          }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-10 pt-6 border-t border-slate-50 flex items-center justify-between">
+                  <div className="text-xs font-bold text-slate-400 uppercase">ขนาดกลุ่ม</div>
+                  <div className="px-3 py-1 bg-slate-50 rounded-full text-xs font-bold text-slate-600">
+                    {data.summary.cluster_counts[persona.id] || 0} คน
+                  </div>
+                </div>
+              </div>
+            ))}
+          </motion.div>
+        )}
+
+        {activeTab === "clusters" && (
+          <motion.div
+            key="clusters"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="space-y-6"
+          >
+            <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm">
+              <div className="flex items-center justify-between mb-10">
                 <div>
-                  <p className={`text-xs font-black uppercase tracking-widest ${p.accentText}`}>
-                    {p.name_en}
-                  </p>
-                  <h3 className="text-lg font-black text-slate-800 mt-0.5">{p.name}</h3>
-                  <p className={`text-xs font-bold mt-1 ${p.accentText}`}>{p.percent}% ({p.size.toLocaleString()} คน)</p>
+                  <h3 className="text-2xl font-bold text-slate-800">Cluster Visualization (PCA)</h3>
+                  <p className="text-slate-400 text-sm mt-1">การกระจายตัวของลูกค้าในรูปแบบ 2 มิติ (Principal Component Analysis)</p>
+                </div>
+                <div className="flex gap-4">
+                  {data.personas.map((p, i) => (
+                    <div key={p.id} className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
+                      <span className="text-xs font-bold text-slate-500">{p.name}</span>
+                    </div>
+                  ))}
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-red-800" />
+                    <span className="text-xs font-bold text-slate-500">Anomaly</span>
+                  </div>
                 </div>
               </div>
 
-              {/* Description */}
-              <p className="text-sm text-slate-600 font-medium leading-relaxed">
-                {p.desc}
-              </p>
+              <div className="h-[500px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+                    <XAxis type="number" dataKey="pca_1" name="PC1" hide />
+                    <YAxis type="number" dataKey="pca_2" name="PC2" hide />
+                    <Tooltip 
+                      cursor={{ strokeDasharray: '3 3' }} 
+                      content={({ active, payload }) => {
+                        if (active && payload && payload.length) {
+                          const p = payload[0].payload as ClusterPoint;
+                          const persona = data.personas.find(per => per.id === p.cluster);
+                          return (
+                            <div className="bg-white p-4 rounded-2xl shadow-2xl border border-slate-100">
+                              <p className="text-sm font-bold text-slate-800">{persona?.name || `Segment ${p.cluster}`}</p>
+                              <p className="text-xs text-slate-400 mt-1">
+                                Cluster: {p.cluster} | {p.anomaly_score ? "⚠️ Anomaly Detected" : "Normal Response"}
+                              </p>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
+                    />
+                    <Scatter name="Customers" data={data.clusters}>
+                      {data.clusters.map((entry, index) => (
+                        <Cell 
+                          key={`cell-${index}`} 
+                          fill={entry.anomaly_score ? "#991b1b" : COLORS[entry.cluster % COLORS.length]} 
+                          opacity={entry.anomaly_score ? 1 : 0.7}
+                        />
+                      ))}
+                    </Scatter>
+                  </ScatterChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+            
+            <div className="bg-teal-50 border border-teal-100 p-8 rounded-[2.5rem] flex gap-6 items-start">
+              <div className="bg-white p-3 rounded-2xl shadow-sm">
+                <Info className="h-6 w-6 text-teal-500" />
+              </div>
+              <div>
+                <h4 className="font-bold text-teal-800 mb-2">เข้าใจผลลัพธ์ของ PCA</h4>
+                <p className="text-teal-700/70 text-sm leading-relaxed">
+                  PCA ช่วยลดมิติของข้อมูลจากหลายสิบตัวแปรให้เหลือเพียง 2 แกนที่สำคัญที่สุด 
+                  เพื่อให้เราเห็นการเกาะกลุ่ม (Clustering) ของลูกค้าได้ด้วยตาเปล่า 
+                  จุดที่อยู่ใกล้กันหมายถึงลูกค้าที่มีพฤติกรรมและทัศนคติคล้ายคลึงกัน
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        )}
 
-              {/* Trait Bars */}
-              <div className="space-y-3 bg-white/60 rounded-2xl p-4 border border-white/80">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-2">Feature Importance</p>
-                {p.traits.map((trait, i) => (
-                  <div key={i} className="space-y-1">
-                    <div className="flex justify-between text-xs">
-                      <span className="font-bold text-slate-600">{trait.label}</span>
-                      <span className={`font-black ${p.accentText}`}>{trait.pct}%</span>
+        {activeTab === "correlation" && (
+          <motion.div
+            key="correlation"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+          >
+            <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm overflow-x-auto">
+              <div className="mb-10">
+                <h3 className="text-2xl font-bold text-slate-800">Behavior Correlation Matrix</h3>
+                <p className="text-slate-400 text-sm mt-1">วิเคราะห์ความสัมพันธ์ของแต่ละปัจจัย (+1 คือแปรผันตามกัน, -1 คือแปรผกผันกัน)</p>
+              </div>
+
+              <div className="min-w-[800px]">
+                {/* Header Row */}
+                <div className="flex border-b border-slate-50">
+                  <div className="w-48 shrink-0 bg-slate-50/50 p-4" />
+                  {data.correlation.columns.map(col => (
+                    <div key={col} className="flex-1 p-2 text-[10px] font-bold text-slate-400 uppercase tracking-tighter text-center rotate-45 h-20 flex items-end justify-center">
+                      {col.replace(/_score|_count/g, '')}
                     </div>
-                    <div className="w-full bg-white h-1.5 rounded-full overflow-hidden">
-                      <motion.div
-                        className={`${p.accent} h-full rounded-full`}
-                        initial={{ width: 0 }}
-                        whileInView={{ width: `${trait.pct}%` }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 1, delay: 0.3 + i * 0.1 }}
-                      />
+                  ))}
+                </div>
+
+                {/* Heatmap Body */}
+                {data.correlation.columns.map((row, i) => (
+                  <div key={row} className="flex border-b border-slate-50 last:border-0">
+                    <div className="w-48 shrink-0 bg-slate-50/50 p-4 text-[10px] font-bold text-slate-600 uppercase tracking-widest flex items-center">
+                      {row.replace(/_score|_count/g, '')}
                     </div>
+                    {data.correlation.values[i].map((val, j) => {
+                      // Color scaling
+                      const absVal = Math.abs(val);
+                      const isPos = val > 0;
+                      const opacity = absVal * 0.8 + 0.1;
+                      const bg = isPos ? `rgba(16, 185, 129, ${opacity})` : `rgba(244, 63, 94, ${opacity})`;
+                      
+                      return (
+                        <div 
+                          key={`${i}-${j}`} 
+                          className="flex-1 p-2 text-[10px] font-bold flex items-center justify-center min-h-[50px] transition-all hover:scale-110 cursor-default"
+                          style={{ backgroundColor: bg, color: absVal > 0.4 ? 'white' : 'inherit' }}
+                          title={`${row} vs ${data.correlation.columns[j]}: ${val}`}
+                        >
+                          {val}
+                        </div>
+                      );
+                    })}
                   </div>
                 ))}
               </div>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── Strategic Recommendations ── */}
-      <section className="space-y-6">
-        <div>
-          <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-            <Lightbulb className="h-7 w-7 text-amber-400" />
-            ข้อเสนอแนะเชิงกลยุทธ์ตาม Segment
-          </h2>
-          <p className="mt-1 text-slate-400 font-medium text-sm">
-            Campaign Strategy ที่แนะนำสำหรับแต่ละกลุ่มลูกค้า
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {personas.map((p, idx) => (
-            <motion.div
-              key={p.id}
-              className="bg-white rounded-[2rem] border border-slate-50 shadow-sm p-8 flex flex-col gap-4 hover:border-rose-100 transition-all"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: idx * 0.12 }}
-            >
-              <div className="flex items-center gap-3">
-                <div className={`w-8 h-8 rounded-xl ${p.accent} text-white flex items-center justify-center text-xs font-black shadow`}>
-                  {p.id}
-                </div>
-                <p className="font-black text-slate-800">{p.strategy}</p>
-              </div>
-              <p className="text-sm text-slate-500 font-medium leading-relaxed">
-                {p.strategyDetail}
-              </p>
-              <div className={`mt-auto pt-4 border-t border-slate-50 flex items-center gap-2 ${p.accentText}`}>
-                <ShieldCheck className="h-4 w-4" />
-                <span className="text-xs font-bold">กลุ่มเป้าหมาย: {p.name}</span>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Overall insight banner */}
-        <motion.div
-          className="bg-gradient-to-br from-rose-400 to-rose-500 rounded-[2.5rem] p-8 sm:p-10 text-white border-4 border-white/20 shadow-xl shadow-rose-100"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-        >
-          <div className="flex flex-col md:flex-row md:items-center gap-8">
-            <div className="bg-white/20 p-4 rounded-2xl w-fit">
-              <Sparkles className="h-8 w-8" />
             </div>
-            <div>
-              <h3 className="text-xl font-black mb-2">สรุปข้อค้นพบสำคัญจาก Clustering</h3>
-              <p className="text-rose-50 font-medium leading-relaxed max-w-3xl">
-                กลุ่มที่มีศักยภาพสูงสุดในการเป็นลูกค้า Kiyora คือ <strong>Cluster 1 (Expert-Driven)</strong> ที่มีอิทธิพลจากแพทย์สูง
-                แนะนำให้เน้นลงทุนในช่องทาง Medical Influencer และ Clinical Endorsement
-                ขณะเดียวกัน <strong>Cluster 2</strong> เป็นกลุ่ม Growth Potential ที่ขยายได้ผ่าน Social Media Campaign
-              </p>
-            </div>
-          </div>
-        </motion.div>
-      </section>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

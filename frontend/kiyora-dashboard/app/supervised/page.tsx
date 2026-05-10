@@ -25,29 +25,61 @@ const metricDefs = [
 ];
 
 // ── Types ─────────────────────────────────────────────────────────────────────
-interface ModelRow {
-  name: string;
+interface ModelMetrics {
   accuracy: number;
   precision: number;
   recall: number;
   f1: number;
+}
+
+interface ModelRow {
+  name: string;
+  train: ModelMetrics;
+  test: ModelMetrics;
   selected: boolean;
 }
 
 interface ModelData {
+  trainSize: number;
   testSize: number;
   models: ModelRow[];
 }
 
 // Fallback: real values from supervised_evaluate.py (used when API is unavailable)
 const FALLBACK_DATA: ModelData = {
+  trainSize: 65,
   testSize: 17,
   models: [
-    { name: "Logistic Regression", accuracy: 0.7647, precision: 0.25,   recall: 0.50, f1: 0.3333, selected: true  },
-    { name: "SVM",                 accuracy: 0.8235, precision: 0.3333, recall: 0.50, f1: 0.40,   selected: false },
-    { name: "Random Forest",       accuracy: 0.8235, precision: 0.00,   recall: 0.00, f1: 0.00,   selected: false },
-    { name: "Decision Tree",       accuracy: 0.7647, precision: 0.00,   recall: 0.00, f1: 0.00,   selected: false },
-    { name: "KNN",                 accuracy: 0.8824, precision: 0.00,   recall: 0.00, f1: 0.00,   selected: false },
+    { 
+      name: "Logistic Regression", 
+      train: { accuracy: 0.8154, precision: 0.3333, recall: 0.60, f1: 0.4286 },
+      test:  { accuracy: 0.7647, precision: 0.25,   recall: 0.50, f1: 0.3333 },
+      selected: true  
+    },
+    { 
+      name: "SVM",                 
+      train: { accuracy: 0.8462, precision: 0.40, recall: 0.60, f1: 0.48 },
+      test:  { accuracy: 0.8235, precision: 0.3333, recall: 0.50, f1: 0.40 },
+      selected: false 
+    },
+    { 
+      name: "Random Forest",       
+      train: { accuracy: 1.0, precision: 1.0, recall: 1.0, f1: 1.0 },
+      test:  { accuracy: 0.8235, precision: 0.00, recall: 0.00, f1: 0.00 },
+      selected: false 
+    },
+    { 
+      name: "Decision Tree",       
+      train: { accuracy: 1.0, precision: 1.0, recall: 1.0, f1: 1.0 },
+      test:  { accuracy: 0.7647, precision: 0.00, recall: 0.00, f1: 0.00 },
+      selected: false 
+    },
+    { 
+      name: "KNN",                 
+      train: { accuracy: 0.8769, precision: 0.00, recall: 0.00, f1: 0.00 },
+      test:  { accuracy: 0.8824, precision: 0.00, recall: 0.00, f1: 0.00 },
+      selected: false 
+    },
   ],
 };
 
@@ -74,7 +106,7 @@ export default function SupervisedPage() {
 
   // Try to fetch live data from API; fall back to static data if unavailable
   useEffect(() => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8001";
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
     fetch(`${apiUrl}/model-comparison`)
       .then((r) => {
         if (!r.ok) throw new Error("API error");
@@ -110,7 +142,7 @@ export default function SupervisedPage() {
         acne_friendly_score: formData.acne_score / 5.0,
         gender:             parseInt(formData.gender),
       };
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8001";
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
       const response = await fetch(`${apiUrl}/predict`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -139,23 +171,42 @@ export default function SupervisedPage() {
       {/* Indicators Panel — values from selected model via API */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {metricDefs.map((m, idx) => {
-          const val = selectedModel ? (selectedModel as any)[m.key] : null;
-          const display = val !== null && val !== undefined
-            ? `${(val * 100).toFixed(2)}%`
+          const trainVal = selectedModel ? (selectedModel.train as any)[m.key] : null;
+          const testVal = selectedModel ? (selectedModel.test as any)[m.key] : null;
+          
+          const displayTrain = trainVal !== null && trainVal !== undefined
+            ? `${(trainVal * 100).toFixed(1)}%`
             : "—";
+          const displayTest = testVal !== null && testVal !== undefined
+            ? `${(testVal * 100).toFixed(1)}%`
+            : "—";
+
           return (
             <motion.div
               key={m.key}
-              className="bg-white p-8 rounded-[2rem] border border-rose-50 shadow-sm"
+              className="bg-white p-8 rounded-[2rem] border border-rose-50 shadow-sm overflow-hidden relative"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.1 }}
             >
+              <div className="absolute top-0 right-0 p-4 opacity-5">
+                <m.icon className="h-12 w-12" />
+              </div>
               <div className={`w-12 h-12 ${m.bg} ${m.color} rounded-2xl flex items-center justify-center mb-5`}>
                 <m.icon className="h-6 w-6" />
               </div>
               <p className="text-sm font-bold text-slate-400">{m.label}</p>
-              <p className="text-2xl font-black text-slate-800">{display}</p>
+              
+              <div className="mt-2 flex flex-col gap-1">
+                <div className="flex justify-between items-baseline">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Test Set</span>
+                  <span className="text-2xl font-black text-slate-800">{displayTest}</span>
+                </div>
+                <div className="flex justify-between items-center bg-slate-50 px-3 py-1.5 rounded-xl">
+                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Train Set</span>
+                  <span className="text-xs font-black text-teal-600">{displayTrain}</span>
+                </div>
+              </div>
             </motion.div>
           );
         })}
@@ -385,16 +436,34 @@ export default function SupervisedPage() {
                   </span>
                 </div>
 
-                {[m.accuracy, m.precision, m.recall, m.f1].map((val, i) => (
+                {[
+                  { k: "accuracy",  valT: m.train.accuracy, valE: m.test.accuracy },
+                  { k: "precision", valT: m.train.precision, valE: m.test.precision },
+                  { k: "recall",    valT: m.train.recall, valE: m.test.recall },
+                  { k: "f1",        valT: m.train.f1, valE: m.test.f1 },
+                ].map((item, i) => (
                   <div key={i} className="flex flex-col items-center gap-1.5">
-                    <span className={`text-base font-black ${m.selected ? "text-teal-600" : "text-slate-700"}`}>
-                      {(val * 100).toFixed(0)}%
-                    </span>
-                    <div className="w-full max-w-[60px] h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[9px] font-bold text-slate-300">TR:</span>
+                      <span className={`text-[11px] font-bold ${m.selected ? "text-teal-400" : "text-slate-400"}`}>
+                        {(item.valT * 100).toFixed(0)}%
+                      </span>
+                      <span className="text-[9px] font-bold text-slate-300 ml-1">TS:</span>
+                      <span className={`text-sm font-black ${m.selected ? "text-teal-600" : "text-slate-700"}`}>
+                        {(item.valE * 100).toFixed(0)}%
+                      </span>
+                    </div>
+                    <div className="w-full max-w-[80px] h-1.5 bg-slate-100 rounded-full overflow-hidden relative">
+                      {/* Train Bar (Background) */}
+                      <div 
+                        className="absolute h-full bg-slate-200"
+                        style={{ width: `${item.valT * 100}%` }}
+                      />
+                      {/* Test Bar (Foreground) */}
                       <motion.div
-                        className={`h-full rounded-full ${m.selected ? "bg-teal-400" : "bg-rose-200"}`}
+                        className={`absolute h-full rounded-full ${m.selected ? "bg-teal-400 shadow-sm" : "bg-rose-200"}`}
                         initial={{ width: 0 }}
-                        whileInView={{ width: `${val * 100}%` }}
+                        whileInView={{ width: `${item.valE * 100}%` }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.8, delay: 0.2 + idx * 0.08 }}
                       />

@@ -29,21 +29,21 @@ const staggerContainer = {
 };
 
 const teamMembers = [
-  { 
-    name: "ลลิตวดี", 
-    role: "Machine Learning Engineer / Backend Developer", 
+  {
+    name: "เจเจ",
+    role: "Machine Learning Engineer / Backend Developer",
     desc: "ดูแลด้านโมเดลและการเชื่อมต่อข้อมูล",
     image: "/team/lalitwadee.jpg"
   },
-  { 
-    name: "แพท", 
-    role: "Business Analyst / Data Engineer", 
+  {
+    name: "แพท",
+    role: "Business Analyst / Data Engineer",
     desc: "วิเคราะห์ข้อมูลเชิงลึกและโครงสร้างข้อมูล",
-    image: null
+    image: "/team/pat.jpg"
   },
-  { 
-    name: "เนย", 
-    role: "Frontend / Dashboard Developer", 
+  {
+    name: "เนย",
+    role: "Frontend / Dashboard Developer",
     desc: "ออกแบบและพัฒนาหน้าจอการแสดงผล",
     image: "/team/noey.jpg"
   },
@@ -53,7 +53,7 @@ export default function Home() {
   return (
     <div className="space-y-16 pb-20">
       {/* Hero Section */}
-      <motion.section 
+      <motion.section
         className="relative overflow-hidden rounded-[3rem] bg-gradient-to-br from-rose-200 via-rose-100 to-teal-100 px-8 py-20 text-slate-800 shadow-xl shadow-rose-100/50"
         initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -65,7 +65,7 @@ export default function Home() {
             <span className="text-slate-700">Intelligence System</span>
           </h1>
           <p className="mt-6 text-lg leading-8 text-slate-500 font-medium">
-            ระบบวิเคราะห์แบรนด์อัจฉริยะที่ช่วยให้คุณเข้าใจ <br/>
+            ระบบวิเคราะห์แบรนด์อัจฉริยะที่ช่วยให้คุณเข้าใจ <br />
             ความต้องการของลูกค้าและทำนายผลลัพธ์ได้อย่างแม่นยำ
           </p>
           <div className="mt-10 flex flex-col sm:flex-row items-center gap-6">
@@ -74,7 +74,7 @@ export default function Home() {
                 เริ่มวิเคราะห์ผล
               </button>
             </Link>
-            <button 
+            <button
               onClick={() => document.getElementById('architecture')?.scrollIntoView({ behavior: 'smooth' })}
               className="text-sm font-bold leading-6 text-slate-600 flex items-center gap-2 group hover:text-rose-400 transition-colors"
             >
@@ -82,7 +82,7 @@ export default function Home() {
             </button>
           </div>
         </div>
-        
+
         {/* Soft decorative shapes */}
         <div className="absolute top-0 right-0 -mr-20 -mt-20 h-64 w-64 sm:h-96 sm:w-96 rounded-full bg-white opacity-40 blur-3xl" />
         <div className="absolute bottom-0 right-0 -mr-10 -mb-10 h-48 w-48 sm:h-64 sm:w-64 rounded-full bg-teal-200 opacity-30 blur-2xl" />
@@ -98,10 +98,10 @@ export default function Home() {
         <div className="relative max-w-5xl mx-auto">
           {/* Connection Lines (Desktop) */}
           <div className="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-gradient-to-r from-rose-200 via-teal-200 to-rose-200 -translate-y-1/2 -z-10 opacity-50" />
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             {/* Step 1: Data Source */}
-            <motion.div 
+            <motion.div
               className="flex flex-col items-center group"
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -115,8 +115,8 @@ export default function Home() {
                   </div>
                   <h3 className="font-bold text-slate-800 text-lg">ฐานข้อมูล (Data)</h3>
                   <p className="text-xs text-slate-400 mt-3 font-medium leading-relaxed">
-                    ข้อมูลจากการสำรวจกลุ่มตัวอย่าง<br/>
-                    และปัจจัยที่มีผลต่อการตัดสินใจ<br/>
+                    ข้อมูลจากการสำรวจกลุ่มตัวอย่าง<br />
+                    และปัจจัยที่มีผลต่อการตัดสินใจ<br />
                     ถูกจัดเก็บในรูปแบบ CSV/Clean Data
                   </p>
                   <div className="mt-4 px-3 py-1 bg-rose-50 rounded-full text-[10px] font-bold text-rose-400 uppercase tracking-tighter">Layer 01</div>
@@ -125,7 +125,7 @@ export default function Home() {
             </motion.div>
 
             {/* Step 2: AI Engine (Center) */}
-            <motion.div 
+            <motion.div
               className="flex flex-col items-center group"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -138,11 +138,11 @@ export default function Home() {
                   <div className="bg-teal-50 p-4 rounded-2xl mb-6 shadow-inner">
                     <Cpu className="h-8 w-8 text-teal-500" />
                   </div>
-                  <h3 className="font-bold text-slate-800 text-lg">ระบบประมวลผล (API)</h3>
+                  <h3 className="font-bold text-slate-800 text-lg">ระบบประมวลผล (AI)</h3>
                   <p className="text-xs text-teal-600/70 mt-3 font-bold leading-relaxed">
-                    Logistic Regression Model<br/>
-                    รันบน FastAPI Server<br/>
-                    ประมวลผลการทำนายผลทันที
+                    Logistic Regression (Supervised)<br />
+                    K-Means & PCA (Unsupervised)<br />
+                    Isolation Forest (Anomaly Detection)
                   </p>
                   <div className="mt-4 px-3 py-1 bg-teal-500 rounded-full text-[10px] font-bold text-white uppercase tracking-tighter shadow-md shadow-teal-100">Brain Layer</div>
                 </div>
@@ -150,7 +150,7 @@ export default function Home() {
             </motion.div>
 
             {/* Step 3: Intelligence Dashboard */}
-            <motion.div 
+            <motion.div
               className="flex flex-col items-center group"
               initial={{ opacity: 0, x: 20 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -165,16 +165,16 @@ export default function Home() {
                   </div>
                   <h3 className="font-bold text-slate-800 text-lg">แดชบอร์ด (UX/UI)</h3>
                   <p className="text-xs text-slate-400 mt-3 font-medium leading-relaxed">
-                    แสดงผลผ่าน Next.js<br/>
-                    แบบ Real-time Dashboard<br/>
-                    แปลข้อมูล AI เป็นภาษาที่เข้าใจง่าย
+                    Customer Persona Segmentation<br />
+                    Behavior Correlation Matrix<br />
+                    Real-time Predictive Analytics
                   </p>
                   <div className="mt-4 px-3 py-1 bg-blue-50 rounded-full text-[10px] font-bold text-blue-400 uppercase tracking-tighter">Layer 03</div>
                 </div>
               </div>
             </motion.div>
           </div>
-          
+
           {/* Animated Flow Particles (Optional/Conceptual) */}
           <div className="hidden md:block absolute top-1/2 left-1/3 w-2 h-2 bg-teal-400 rounded-full -translate-y-1/2 animate-ping" />
           <div className="hidden md:block absolute top-1/2 right-1/3 w-2 h-2 bg-teal-400 rounded-full -translate-y-1/2 animate-ping" />
@@ -195,7 +195,7 @@ export default function Home() {
           </div>
         </div>
 
-        <motion.div 
+        <motion.div
           className="grid grid-cols-1 md:grid-cols-3 gap-8"
           variants={staggerContainer}
           initial="initial"
@@ -203,16 +203,16 @@ export default function Home() {
           viewport={{ once: true }}
         >
           {teamMembers.map((member, idx) => (
-            <motion.div 
+            <motion.div
               key={idx}
               className="group relative overflow-hidden rounded-[2.5rem] bg-white p-8 border border-rose-50 shadow-sm hover:border-rose-200 transition-all"
               variants={fadeIn}
             >
               <div className="mb-6 h-28 w-28 rounded-[2rem] bg-rose-50 overflow-hidden flex items-center justify-center border-4 border-white shadow-inner group-hover:scale-105 transition-transform">
                 {member.image ? (
-                  <img 
-                    src={member.image} 
-                    alt={member.name} 
+                  <img
+                    src={member.image}
+                    alt={member.name}
                     className="h-full w-full object-cover"
                   />
                 ) : (
@@ -222,7 +222,7 @@ export default function Home() {
               <h3 className="text-xl font-bold text-slate-800">{member.name}</h3>
               <p className="text-rose-400 text-sm font-bold mb-4">{member.role}</p>
               <p className="text-slate-400 text-sm font-medium leading-relaxed">{member.desc}</p>
-              
+
               <div className="absolute top-0 right-0 p-6 opacity-0 group-hover:opacity-100 transition-opacity">
                 <ShieldCheck className="h-6 w-6 text-teal-400" />
               </div>

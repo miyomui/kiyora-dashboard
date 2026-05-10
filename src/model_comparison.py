@@ -37,15 +37,15 @@ MODEL_FILES = [
 
 def get_model_comparison():
     """
-    โหลดโมเดลทุกตัวจาก .pkl และประเมินผลบน Test Set จริง
+    โหลดโมเดลทุกตัวจาก .pkl และประเมินผลบนทั้ง Train และ Test Set
     Returns:
-        dict: { "testSize": int, "models": list[dict] }
+        dict: { "trainSize": int, "testSize": int, "models": list[dict] }
     """
     df = pd.read_csv(DATA_PATH)
     X  = df[FEATURES]
     y  = df[TARGET]
 
-    _, X_test, _, y_test = train_test_split(
+    X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, stratify=y, random_state=42
     )
 
@@ -53,30 +53,44 @@ def get_model_comparison():
     for entry in MODEL_FILES:
         pkl_path = os.path.join(MODEL_DIR, entry["file"])
         if not os.path.exists(pkl_path):
-            # ไม่พบไฟล์ → ใส่ค่า 0 ทั้งหมด
             results.append({
-                "name":      entry["name"],
-                "accuracy":  0.0,
-                "precision": 0.0,
-                "recall":    0.0,
-                "f1":        0.0,
-                "selected":  entry["selected"],
+                "name": entry["name"],
+                "train": {"accuracy": 0, "precision": 0, "recall": 0, "f1": 0},
+                "test":  {"accuracy": 0, "precision": 0, "recall": 0, "f1": 0},
+                "selected": entry["selected"],
             })
             continue
 
-        model  = joblib.load(pkl_path)
-        y_pred = model.predict(X_test)
+        model = joblib.load(pkl_path)
+        
+        # Train metrics
+        y_train_pred = model.predict(X_train)
+        train_metrics = {
+            "accuracy":  round(accuracy_score(y_train, y_train_pred), 4),
+            "precision": round(precision_score(y_train, y_train_pred, zero_division=0), 4),
+            "recall":    round(recall_score(y_train, y_train_pred, zero_division=0), 4),
+            "f1":        round(f1_score(y_train, y_train_pred, zero_division=0), 4),
+        }
+
+        # Test metrics
+        y_test_pred = model.predict(X_test)
+        test_metrics = {
+            "accuracy":  round(accuracy_score(y_test, y_test_pred), 4),
+            "precision": round(precision_score(y_test, y_test_pred, zero_division=0), 4),
+            "recall":    round(recall_score(y_test, y_test_pred, zero_division=0), 4),
+            "f1":        round(f1_score(y_test, y_test_pred, zero_division=0), 4),
+        }
 
         results.append({
-            "name":      entry["name"],
-            "accuracy":  round(accuracy_score(y_test, y_pred), 4),
-            "precision": round(precision_score(y_test, y_pred, zero_division=0), 4),
-            "recall":    round(recall_score(y_test, y_pred, zero_division=0), 4),
-            "f1":        round(f1_score(y_test, y_pred, zero_division=0), 4),
-            "selected":  entry["selected"],
+            "name": entry["name"],
+            "train": train_metrics,
+            "test": test_metrics,
+            "selected": entry["selected"],
         })
 
     return {
+        "trainSize": len(X_train),
         "testSize": len(X_test),
-        "models":   results,
+        "models": results,
     }
+

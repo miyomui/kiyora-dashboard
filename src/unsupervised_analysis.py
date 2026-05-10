@@ -1,0 +1,110 @@
+import pandas as pd
+import numpy as np
+from sklearn.cluster import KMeans
+from sklearn.decomposition import PCA
+from sklearn.ensemble import IsolationForest
+from sklearn.preprocessing import StandardScaler
+import json
+import os
+
+def run_unsupervised_analysis(file_path="data/cleaned_data.csv"):
+    """
+    Performs unsupervised learning tasks: Clustering, PCA, Anomaly Detection.
+    Returns a dictionary of results for the API.
+    """
+    if not os.path.exists(file_path):
+        return {"error": f"File {file_path} not found. Please run process_data.py first."}
+
+    df = pd.read_csv(file_path)
+
+    # 1. Feature Selection for Unsupervised Learning
+    # Focus on behavior, preferences, and skin concerns
+    likert_cols = [
+        "deep_cleansing_score", "acne_friendly_score", "sensitive_skin_score",
+        "no_irritant_score", "hypoallergenic_score", "moisturizing_score",
+        "low_friction_score", "nourishment_score", "eye_friendly_score",
+        "oil_control_score"
+    ]
+    behavior_cols = ["acne_score", "influence_score", "is_price_sensitive", "concern_count"]
+    
+    features = likert_cols + behavior_cols
+    X = df[features].fillna(0)
+
+    # Standardize features
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+
+    # 2. Clustering (K-Means)
+    # Using 3 clusters for easy interpretation (Persona: Budget, Expert/Medical, General)
+    kmeans = KMeans(n_clusters=3, random_state=42, n_init=10)
+    df['cluster'] = kmeans.fit_predict(X_scaled)
+
+    # 3. Dimensionality Reduction (PCA) for Visualization
+    pca = PCA(n_components=2)
+    pca_results = pca.fit_transform(X_scaled)
+    df['pca_1'] = pca_results[:, 0]
+    df['pca_2'] = pca_results[:, 1]
+
+    # 4. Anomaly Detection (Isolation Forest)
+    iso_forest = IsolationForest(contamination=0.05, random_state=42)
+    df['is_anomaly'] = iso_forest.fit_predict(X_scaled)
+    # -1 is anomaly, 1 is normal -> convert to 1 for anomaly, 0 for normal
+    df['anomaly_score'] = df['is_anomaly'].apply(lambda x: 1 if x == -1 else 0)
+
+    # 5. Correlation Analysis
+    corr_matrix = df[features].corr().round(2)
+    
+    # 6. Persona Generation (Cluster Profiles)
+    cluster_profiles = df.groupby('cluster')[features].mean().round(2)
+    
+    # Add human-friendly persona names based on characteristics
+    personas = []
+    for i, profile in cluster_profiles.iterrows():
+        # Heuristic for naming
+        name = f"Segment {i+1}"
+        description = ""
+        
+        if profile['acne_friendly_score'] > 0.7 or profile['acne_score'] > 1.5:
+            name = "The Acne-Focused Seeker"
+            description = "กลุ่มลูกค้าที่กังวลเรื่องสิวเป็นหลัก ให้ความสำคัญกับความสะอาดและการผ่านการทดสอบทางการแพทย์"
+        elif profile['is_price_sensitive'] > 0.8:
+            name = "The Smart Budgeter"
+            description = "กลุ่มลูกค้าที่เน้นความคุ้มค่าและราคาเป็นหลัก มักตัดสินใจจากโปรโมชั่น"
+        elif profile['sensitive_skin_score'] > 0.7:
+            name = "The Gentle Skin Enthusiast"
+            description = "กลุ่มผิวแพ้ง่ายที่เน้นความอ่อนโยนเป็นพิเศษ และพิจารณาส่วนประกอบที่ไม่มีสารก่อการแพ้"
+        else:
+            name = "The Balanced Consumer"
+            description = "กลุ่มลูกค้าทั่วไปที่มีความกังวลสมดุลในหลายด้าน พิจารณาทั้งคุณภาพและภาพลักษณ์แบรนด์"
+
+        personas.append({
+            "id": int(i),
+            "name": name,
+            "description": description,
+            "stats": profile.to_dict()
+        })
+
+    # Prepare data for API
+    results = {
+        "stats": df[features].describe().round(2).to_dict(),
+        "correlation": {
+            "columns": features,
+            "values": corr_matrix.values.tolist()
+        },
+        "clusters": df[['pca_1', 'pca_2', 'cluster', 'anomaly_score']].to_dict(orient='records'),
+        "personas": personas,
+        "summary": {
+            "total_count": len(df),
+            "anomaly_count": int(df['anomaly_score'].sum()),
+            "cluster_counts": df['cluster'].value_counts().to_dict()
+        }
+    }
+
+    return results
+
+if __name__ == "__main__":
+    results = run_unsupervised_analysis()
+    # Save a sample to check
+    with open("data/unsupervised_results.json", "w", encoding="utf-8") as f:
+        json.dump(results, f, ensure_ascii=False, indent=4)
+    print("Unsupervised analysis complete. 'data/unsupervised_results.json' saved.")

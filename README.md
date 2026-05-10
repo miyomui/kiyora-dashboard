@@ -1,6 +1,6 @@
 # Kiyora Brand Analysis — AI-Driven Marketing System
 
-ระบบวิเคราะห์การตลาดอัจฉริยะสำหรับแบรนด์ **Kiyora** พัฒนาด้วยเทคนิค Machine Learning ครบวงจร (End-to-End AI System) ตามข้อกำหนดโครงการ AIE 324-325
+ระบบวิเคราะห์การตลาดอัจฉริยะสำหรับแบรนด์ **Kiyora** พัฒนาด้วยเทคนิค Machine Learning ครบวงจร (End-to-End AI System) ตามข้อกำหนดโครงการ AIE 322, 323, 324, 325
 
 ---
 
@@ -37,29 +37,24 @@
 
 ## 📂 โครงสร้างโปรเจกต์
 
-```
-kiyora-dashboard/
 ├── api/
 │   └── main.py                    # FastAPI endpoints
 ├── src/
+│   ├── database.py                # SQLite Persistence Layer [NEW]
 │   ├── supervised_train.py        # ฝึกสอนโมเดลทั้ง 5 ตัว
 │   ├── supervised_evaluate.py     # เปรียบเทียบประสิทธิภาพโมเดล
 │   ├── model_comparison.py        # ฟังก์ชันสำหรับ /model-comparison API
 │   ├── predict.py                 # ฟังก์ชันทำนายผล (ใช้กับ API)
 │   ├── process_data.py            # เตรียมและทำความสะอาดข้อมูล
-│   └── unsupervised.py            # K-Means + PCA
+│   └── unsupervised_analysis.py   # K-Means + PCA
 ├── models/
 │   ├── logistic_regression.pkl    # โมเดลหลัก (ใช้กับ API)
-│   ├── svm.pkl
-│   ├── random_forest.pkl
-│   ├── decision_tree.pkl
-│   └── knn.pkl
+│   └── ...
 ├── data/
-│   └── clean.csv                  # ข้อมูลที่ผ่านการเตรียมแล้ว
-├── frontend/
-│   └── kiyora-dashboard/          # Next.js App
-└── requirements.txt
-```
+│   ├── clean.csv                  # ข้อมูลที่ผ่านการเตรียมแล้ว
+│   └── kiyora_logs.db             # ฐานข้อมูลเก็บประวัติทำนาย [NEW]
+├── requirements.txt
+└── README.md
 
 ---
 
@@ -74,8 +69,8 @@ pip install -r requirements.txt
 # (ถ้ายังไม่มีไฟล์โมเดล) ฝึกสอนโมเดลก่อน
 python src/supervised_train.py
 
-# รัน API server ที่ port 8001
-uvicorn api.main:app --reload --port 8001
+# รัน API server ที่ port 8000
+uvicorn api.main:app --reload --port 8000
 ```
 
 ### 2. Frontend (Next.js)
@@ -87,7 +82,7 @@ cd frontend/kiyora-dashboard
 npm install
 
 # สร้างไฟล์ .env.local และกำหนด API URL
-echo "NEXT_PUBLIC_API_URL=http://127.0.0.1:8001" > .env.local
+echo "NEXT_PUBLIC_API_URL=http://127.0.0.1:8000" > .env.local
 
 # รันในโหมด Development
 npm run dev
@@ -128,6 +123,20 @@ clean.csv
 
 ---
 
+---
+
+## 📄 รายงานสรุปผลโครงการ (Reports)
+
+สามารถอ่านรายละเอียดเชิงลึกได้ที่โฟลเดอร์ `docs/`:
+1. [Business Problem Statement](docs/problem_statement.md)
+2. [Data Preprocessing & Preparation](docs/data_preprocessing.md)
+3. [Unsupervised Learning (Segmentation)](docs/unsupervised_report.md)
+4. [Supervised Learning (Model Selection)](docs/supervised_report.md)
+5. [Strategic Marketing Recommendations](docs/strategic_recommendations.md)
+6. [Source Code Summary Report](docs/source_code_report.md)
+
+---
+
 ## 👥 ทีมผู้พัฒนา
 
 | ชื่อ | บทบาท |
@@ -138,5 +147,5 @@ clean.csv
 
 ---
 
-**Project**: AIE 324-325 — AI-Driven Marketing Campaign System  
+**Project**: AIE 322, 323, 324, 325 — AI-Driven Marketing Campaign System  
 **University**: Bangkok University
