@@ -54,13 +54,13 @@ export default function Home() {
     <div className="space-y-16 pb-20">
       {/* Hero Section */}
       <motion.section
-        className="relative overflow-hidden rounded-[3rem] bg-gradient-to-br from-rose-200 via-rose-100 to-teal-100 px-8 py-20 text-slate-800 shadow-xl shadow-rose-100/50"
+        className="relative overflow-hidden rounded-[3rem] bg-gradient-to-br from-indigo-200 via-indigo-100 to-teal-100 px-8 py-20 text-slate-800 shadow-xl shadow-indigo-100/50"
         initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.8 }}
       >
         <div className="relative z-10 max-w-2xl">
-          <h1 className="text-4xl font-extrabold tracking-tight sm:text-6xl text-rose-600">
+          <h1 className="text-4xl font-extrabold tracking-tight sm:text-6xl text-indigo-600">
             Kiyora Brand <br />
             <span className="text-slate-700">Intelligence System</span>
           </h1>
@@ -70,13 +70,13 @@ export default function Home() {
           </p>
           <div className="mt-10 flex flex-col sm:flex-row items-center gap-6">
             <Link href="/supervised" className="w-full sm:w-auto">
-              <button className="w-full sm:w-auto rounded-2xl bg-rose-400 px-8 py-4 text-sm font-bold text-white shadow-lg shadow-rose-200 hover:bg-rose-500 transition-all active:scale-95">
+              <button className="w-full sm:w-auto rounded-2xl bg-indigo-400 px-8 py-4 text-sm font-bold text-white shadow-lg shadow-indigo-200 hover:bg-indigo-500 transition-all active:scale-95">
                 เริ่มวิเคราะห์ผล
               </button>
             </Link>
             <button
               onClick={() => document.getElementById('architecture')?.scrollIntoView({ behavior: 'smooth' })}
-              className="text-sm font-bold leading-6 text-slate-600 flex items-center gap-2 group hover:text-rose-400 transition-colors"
+              className="text-sm font-bold leading-6 text-slate-600 flex items-center gap-2 group hover:text-indigo-400 transition-colors"
             >
               ดูรายละเอียดเพิ่มเติม <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </button>
@@ -97,7 +97,7 @@ export default function Home() {
 
         <div className="relative max-w-5xl mx-auto">
           {/* Connection Lines (Desktop) */}
-          <div className="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-gradient-to-r from-rose-200 via-teal-200 to-rose-200 -translate-y-1/2 -z-10 opacity-50" />
+          <div className="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-gradient-to-r from-indigo-200 via-teal-200 to-indigo-200 -translate-y-1/2 -z-10 opacity-50" />
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             {/* Step 1: Data Source */}
@@ -108,10 +108,10 @@ export default function Home() {
               viewport={{ once: true }}
             >
               <div className="relative">
-                <div className="absolute -inset-4 bg-rose-100 rounded-[2.5rem] blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="relative bg-white p-8 rounded-[2.5rem] border border-rose-100 shadow-sm flex flex-col items-center text-center w-full min-h-[280px] justify-center">
-                  <div className="bg-rose-50 p-4 rounded-2xl mb-6">
-                    <Database className="h-8 w-8 text-rose-400" />
+                <div className="absolute -inset-4 bg-indigo-100 rounded-[2.5rem] blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="relative bg-white p-8 rounded-[2.5rem] border border-indigo-100 shadow-sm flex flex-col items-center text-center w-full min-h-[280px] justify-center">
+                  <div className="bg-indigo-50 p-4 rounded-2xl mb-6">
+                    <Database className="h-8 w-8 text-indigo-400" />
                   </div>
                   <h3 className="font-bold text-slate-800 text-lg">ฐานข้อมูล (Data)</h3>
                   <p className="text-xs text-slate-400 mt-3 font-medium leading-relaxed">
@@ -119,7 +119,7 @@ export default function Home() {
                     และปัจจัยที่มีผลต่อการตัดสินใจ<br />
                     ถูกจัดเก็บในรูปแบบ CSV/Clean Data
                   </p>
-                  <div className="mt-4 px-3 py-1 bg-rose-50 rounded-full text-[10px] font-bold text-rose-400 uppercase tracking-tighter">Layer 01</div>
+                  <div className="mt-4 px-3 py-1 bg-indigo-50 rounded-full text-[10px] font-bold text-indigo-400 uppercase tracking-tighter">Layer 01</div>
                 </div>
               </div>
             </motion.div>
@@ -205,10 +205,10 @@ export default function Home() {
           {teamMembers.map((member, idx) => (
             <motion.div
               key={idx}
-              className="group relative overflow-hidden rounded-[2.5rem] bg-white p-8 border border-rose-50 shadow-sm hover:border-rose-200 transition-all"
+              className="group relative overflow-hidden rounded-[2.5rem] bg-white p-8 border border-indigo-50 shadow-sm hover:border-indigo-200 transition-all"
               variants={fadeIn}
             >
-              <div className="mb-6 h-28 w-28 rounded-[2rem] bg-rose-50 overflow-hidden flex items-center justify-center border-4 border-white shadow-inner group-hover:scale-105 transition-transform">
+              <div className="mb-6 h-28 w-28 rounded-[2rem] bg-indigo-50 overflow-hidden flex items-center justify-center border-4 border-white shadow-inner group-hover:scale-105 transition-transform">
                 {member.image ? (
                   <img
                     src={member.image}
@@ -216,11 +216,11 @@ export default function Home() {
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <Users className="h-12 w-12 text-rose-200" />
+                  <Users className="h-12 w-12 text-indigo-200" />
                 )}
               </div>
               <h3 className="text-xl font-bold text-slate-800">{member.name}</h3>
-              <p className="text-rose-400 text-sm font-bold mb-4">{member.role}</p>
+              <p className="text-indigo-400 text-sm font-bold mb-4">{member.role}</p>
               <p className="text-slate-400 text-sm font-medium leading-relaxed">{member.desc}</p>
 
               <div className="absolute top-0 right-0 p-6 opacity-0 group-hover:opacity-100 transition-opacity">

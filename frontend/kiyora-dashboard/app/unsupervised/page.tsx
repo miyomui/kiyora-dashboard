@@ -117,7 +117,7 @@ export default function UnsupervisedPage() {
       try {
         setLoading(true);
         // Priority: Env Var > Production Render > Localhost
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://kiyora-dashboard.onrender.com";
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === 'development' ? 'http://127.0.0.1:8000' : 'https://kiyora-dashboard.onrender.com');
         
         const response = await fetch(`${apiUrl}/unsupervised`);
         if (!response.ok) throw new Error("API response not ok");
@@ -139,7 +139,7 @@ export default function UnsupervisedPage() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <div className="w-12 h-12 border-4 border-rose-100 border-t-rose-400 rounded-full animate-spin" />
+        <div className="w-12 h-12 border-4 border-indigo-100 border-t-indigo-400 rounded-full animate-spin" />
         <p className="text-slate-400 font-medium animate-pulse">กำลังวิเคราะห์ข้อมูลเชิงลึก...</p>
       </div>
     );
@@ -163,12 +163,12 @@ export default function UnsupervisedPage() {
 
       {/* Header & Stats Overview */}
       <section className="relative overflow-hidden rounded-[3rem] bg-gradient-to-br from-slate-900 to-slate-800 p-8 md:p-12 text-white">
-        <div className="absolute top-0 right-0 -m-20 w-80 h-80 bg-rose-500/10 rounded-full blur-3xl" />
+        <div className="absolute top-0 right-0 -m-20 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl" />
         <div className="absolute bottom-0 left-0 -m-20 w-80 h-80 bg-teal-500/10 rounded-full blur-3xl" />
         
         <div className="relative flex flex-col md:flex-row items-center justify-between gap-8">
           <div>
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/10 text-rose-300 text-xs font-bold uppercase tracking-widest mb-4">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/10 text-indigo-300 text-xs font-bold uppercase tracking-widest mb-4">
               <BarChart3 className="h-3 w-3" />
               Unsupervised Learning Mode
             </div>
@@ -185,7 +185,7 @@ export default function UnsupervisedPage() {
               <div className="text-slate-400 text-xs font-bold uppercase mt-1">จำนวนข้อมูลทั้งหมด</div>
             </div>
             <div className="bg-white/5 backdrop-blur-md p-6 rounded-3xl border border-white/10">
-              <div className="text-rose-400 font-bold text-3xl">{data.summary.anomaly_count}</div>
+              <div className="text-indigo-400 font-bold text-3xl">{data.summary.anomaly_count}</div>
               <div className="text-slate-400 text-xs font-bold uppercase mt-1">ข้อมูลผิดปกติ (Anomalies)</div>
             </div>
           </div>
@@ -204,7 +204,7 @@ export default function UnsupervisedPage() {
             onClick={() => setActiveTab(tab.id as any)}
             className={`flex items-center gap-2 px-6 py-3 rounded-full font-bold text-sm transition-all duration-300 ${
               activeTab === tab.id 
-              ? "bg-rose-500 text-white shadow-lg shadow-rose-200" 
+              ? "bg-indigo-500 text-white shadow-lg shadow-indigo-200" 
               : "bg-white text-slate-500 border border-slate-100 hover:bg-slate-50"
             }`}
           >

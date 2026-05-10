@@ -49,7 +49,7 @@ function toArr(obj: Record<string, number>) {
 function Card({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
     <motion.div
-      className={`bg-white p-6 sm:p-8 rounded-[2rem] border border-rose-50 shadow-sm ${className}`}
+      className={`bg-white p-6 sm:p-8 rounded-[2rem] border border-indigo-50 shadow-sm ${className}`}
       initial={{ opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
@@ -64,9 +64,9 @@ function Card({ children, className = "" }: { children: React.ReactNode; classNa
 function CustomTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-white px-4 py-2 rounded-xl shadow-lg border border-rose-100 text-sm">
+    <div className="bg-white px-4 py-2 rounded-xl shadow-lg border border-indigo-100 text-sm">
       <p className="font-bold text-slate-700">{label || payload[0]?.name}</p>
-      <p className="text-rose-500 font-black">{payload[0]?.value} คน</p>
+      <p className="text-indigo-500 font-black">{payload[0]?.value} คน</p>
     </div>
   );
 }
@@ -121,7 +121,7 @@ export default function InsightsPage() {
   const [usingFallback, setUsingFallback] = useState(false);
 
   useEffect(() => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://kiyora-dashboard.onrender.com";
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === 'development' ? 'http://127.0.0.1:8000' : 'https://kiyora-dashboard.onrender.com');
     fetch(`${apiUrl}/insights`)
       .then((r) => { if (!r.ok) throw new Error(); return r.json(); })
       .then((d) => { setData(d); setUsingFallback(false); })
@@ -182,16 +182,16 @@ export default function InsightsPage() {
         ].map((item, idx) => (
           <motion.div
             key={idx}
-            className="bg-white p-8 sm:p-10 rounded-[2rem] sm:rounded-[2.5rem] border border-rose-50 shadow-sm hover:shadow-lg transition-all group"
+            className="bg-white p-8 sm:p-10 rounded-[2rem] sm:rounded-[2.5rem] border border-indigo-50 shadow-sm hover:shadow-lg transition-all group"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: idx * 0.1 }}
           >
             <div className="flex justify-between items-start mb-8">
-              <div className="p-4 bg-rose-50 text-rose-400 rounded-2xl group-hover:bg-rose-400 group-hover:text-white transition-colors">
+              <div className="p-4 bg-indigo-50 text-indigo-400 rounded-2xl group-hover:bg-indigo-400 group-hover:text-white transition-colors">
                 <item.icon className="h-6 w-6" />
               </div>
-              <ArrowUpRight className="h-5 w-5 text-rose-200 group-hover:text-rose-400 transition-colors" />
+              <ArrowUpRight className="h-5 w-5 text-indigo-200 group-hover:text-indigo-400 transition-colors" />
             </div>
             <p className="text-slate-400 font-bold text-sm">{item.title}</p>
             <h3 className="text-3xl font-black text-slate-800 mt-2">{item.value}</h3>
@@ -205,7 +205,7 @@ export default function InsightsPage() {
          ════════════════════════════════════════════════════════════════ */}
       <section className="space-y-6">
         <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-          <Users className="h-6 w-6 text-rose-400" />
+          <Users className="h-6 w-6 text-indigo-400" />
           Demographic Profile
         </h2>
 
@@ -228,7 +228,7 @@ export default function InsightsPage() {
          ════════════════════════════════════════════════════════════════ */}
       <section className="space-y-6">
         <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-          <BarChart4 className="h-6 w-6 text-rose-400" />
+          <BarChart4 className="h-6 w-6 text-indigo-400" />
           Business Dashboard
         </h2>
 
@@ -304,14 +304,14 @@ export default function InsightsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
         <Card>
           <h2 className="text-xl font-bold text-slate-800 mb-10 flex items-center gap-2">
-            <BarChart4 className="h-5 w-5 text-rose-400" />
+            <BarChart4 className="h-5 w-5 text-indigo-400" />
             แนวโน้มความรู้สึกต่อแบรนด์
           </h2>
           <div className="space-y-8">
             {[
               { label: "เชิงบวก (Positive)", value: 75, color: "bg-teal-400" },
               { label: "ทั่วไป (Neutral)", value: 15, color: "bg-slate-200" },
-              { label: "เชิงลบ (Negative)", value: 10, color: "bg-rose-300" },
+              { label: "เชิงลบ (Negative)", value: 10, color: "bg-indigo-300" },
             ].map((bar, idx) => (
               <div key={idx} className="space-y-3">
                 <div className="flex justify-between text-sm font-bold text-slate-600">
@@ -332,18 +332,18 @@ export default function InsightsPage() {
           </div>
         </Card>
 
-        <section className="bg-gradient-to-br from-rose-300 to-rose-400 p-8 sm:p-10 rounded-[2rem] sm:rounded-[3rem] text-white shadow-xl shadow-rose-100 flex flex-col justify-between border-4 border-white/30">
+        <section className="bg-gradient-to-br from-indigo-300 to-indigo-400 p-8 sm:p-10 rounded-[2rem] sm:rounded-[3rem] text-white shadow-xl shadow-indigo-100 flex flex-col justify-between border-4 border-white/30">
           <div>
             <div className="bg-white/30 w-fit p-3 rounded-2xl mb-8">
               <Sparkles className="h-6 w-6" />
             </div>
             <h2 className="text-2xl font-black mb-5">ข้อเสนอแนะจาก AI</h2>
-            <p className="text-rose-50 leading-relaxed font-medium italic text-lg">
+            <p className="text-indigo-50 leading-relaxed font-medium italic text-lg">
               &quot;เน้นการทำตลาดในกลุ่มอายุ 18-24 ปี โดยชูจุดเด่นเรื่อง &apos;ความอ่อนโยนต่อผิวเป็นสิว&apos;
               ข้อมูลชี้ให้เห็นว่ากลุ่มนี้ให้ความสำคัญกับความอ่อนโยนของสูตรมากกว่าคำแนะนำจากแพทย์&quot;
             </p>
           </div>
-          <button className="mt-12 bg-white text-rose-400 px-8 py-4 rounded-2xl font-black text-sm hover:bg-rose-50 transition-all w-fit shadow-md">
+          <button className="mt-12 bg-white text-indigo-400 px-8 py-4 rounded-2xl font-black text-sm hover:bg-indigo-50 transition-all w-fit shadow-md">
             ดาวน์โหลดรายงานฉบับเต็ม
           </button>
         </section>
