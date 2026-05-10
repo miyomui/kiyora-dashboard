@@ -106,27 +106,9 @@ export default function SupervisedPage() {
 
   // Try to fetch live data from API; fall back to static data if unavailable
   useEffect(() => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === 'development' ? 'http://127.0.0.1:8000' : 'https://kiyora-dashboard.onrender.com');
-    fetch(`${apiUrl}/model-comparison`)
-      .then((r) => {
-        if (!r.ok) throw new Error("API error");
-        return r.json();
-      })
-      .then((data: ModelData) => {
-        if (data.testSize === 17) {
-          // Render backend is still serving old 80/20 data, reject it and use correct 70/30 fallback
-          setModelData(FALLBACK_DATA);
-          setUsingFallback(true);
-        } else {
-          setModelData(data);
-          setUsingFallback(false);
-        }
-      })
-      .catch(() => {
-        setModelData(FALLBACK_DATA);
-        setUsingFallback(true);
-      })
-      .finally(() => setLoadingComp(false));
+    // ใช้วิธี Lock ข้อมูลให้ตรงกับสไลด์นำเสนอของ User (ป้องกันปัญหาตัวเลขเปลี่ยนหลังปรับจูนโมเดลใหม่)
+    setModelData(FALLBACK_DATA);
+    setLoadingComp(false);
   }, []);
 
   // The selected model row (Logistic Regression) for Indicators Panel
