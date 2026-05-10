@@ -882,8 +882,14 @@
     "personas": [
         {
             "id": 0,
-            "name": "The Acne-Focused Seeker",
-            "description": "กลุ่มลูกค้าที่กังวลเรื่องสิวเป็นหลัก ให้ความสำคัญกับความสะอาดและการผ่านการทดสอบทางการแพทย์",
+            "name": "The Derma-Influenced Seeker",
+            "description": "กลุ่มลูกค้าที่ได้รับอิทธิพลจากแพทย์และผู้เชี่ยวชาญ ให้ความสำคัญกับผิวบอบบางและความสะอาดเชิงลึก",
+            "top_features": {
+                "deep_cleansing_score": 0.98,
+                "sensitive_skin_score": 0.96,
+                "eye_friendly_score": 0.86,
+                "low_friction_score": 0.78
+            },
             "stats": {
                 "deep_cleansing_score": 0.98,
                 "acne_friendly_score": 0.73,
@@ -905,6 +911,12 @@
             "id": 1,
             "name": "The Smart Budgeter",
             "description": "กลุ่มลูกค้าที่เน้นความคุ้มค่าและราคาเป็นหลัก มักตัดสินใจจากโปรโมชั่น",
+            "top_features": {
+                "moisturizing_score": 0.8,
+                "low_friction_score": 0.71,
+                "eye_friendly_score": 0.7,
+                "oil_control_score": 0.68
+            },
             "stats": {
                 "deep_cleansing_score": 0.63,
                 "acne_friendly_score": 0.67,
@@ -924,8 +936,14 @@
         },
         {
             "id": 2,
-            "name": "The Acne-Focused Seeker",
-            "description": "กลุ่มลูกค้าที่กังวลเรื่องสิวเป็นหลัก ให้ความสำคัญกับความสะอาดและการผ่านการทดสอบทางการแพทย์",
+            "name": "The All-Round Skincare Enthusiast",
+            "description": "กลุ่มลูกค้าที่ใส่ใจทุกด้าน มีความกังวลเรื่องผิวหลายประเด็น และต้องการผลิตภัณฑ์ที่ตอบโจทย์รอบด้าน",
+            "top_features": {
+                "eye_friendly_score": 0.96,
+                "acne_friendly_score": 0.95,
+                "oil_control_score": 0.95,
+                "sensitive_skin_score": 0.95
+            },
             "stats": {
                 "deep_cleansing_score": 0.94,
                 "acne_friendly_score": 0.95,

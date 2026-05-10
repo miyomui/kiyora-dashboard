@@ -101,24 +101,34 @@ npm run dev
 
 ---
 
-## 🤖 ML Pipeline
+## 🤖 ML Pipeline (Advanced Implementation)
 
-```
+เพื่อให้ได้ประสิทธิภาพสูงสุดและแก้ปัญหาข้อมูลไม่สมดุล (Imbalanced Data) เราใช้กระบวนการดังนี้:
+
+```text
 clean.csv
-    ↓  Train/Test Split (80/20, stratified)
-    ↓  supervised_train.py
-    ├── logistic_regression.pkl  ← โมเดลหลัก (Recall สูงสุดสำหรับ Imbalanced Data)
+    ↓
+    ↓  Train/Test Split (70/30, stratified)
+    ↓
+    ⚖️  SMOTE (Synthetic Minority Over-sampling Technique)
+    ↓  (เพิ่มจำนวนกลุ่ม Kiyora User ใน Training Set ให้สมดุลเป็น 50:50)
+    ↓
+    🤖  GridSearchCV (Hyperparameter Tuning)
+    ↓  (สแกนหาพารามิเตอร์ที่ดีที่สุดของทั้ง 5 โมเดลโดยอัตโนมัติ)
+    ↓
+    ├── logistic_regression.pkl  ← โมเดลหลัก (Best Estimator)
     ├── svm.pkl
     ├── random_forest.pkl
     ├── decision_tree.pkl
     └── knn.pkl
-         ↓  supervised_evaluate.py
-         └── ตารางเปรียบเทียบ Accuracy / Precision / Recall / F1
+         ↓
+         📊 supervised_evaluate.py
+         └── ตารางเปรียบเทียบประสิทธิภาพชุดใหม่ (Recall & F1 ดีขึ้น)
 ```
 
-### เหตุผลในการเลือก Logistic Regression
-
-ข้อมูลมีความไม่สมดุล (Class 0: 72 ตัวอย่าง vs Class 1: 10 ตัวอย่าง) จึงใช้ `class_weight="balanced"` และเลือกโมเดลที่ให้ค่า **Recall สูงสุด** เพื่อไม่พลาดลูกค้ากลุ่มเป้าหมาย
+### การจัดการความท้าทายในข้อมูล
+*   **Imbalanced Data:** เนื่องจากผู้ใช้ Kiyora จริงมีเพียง ~12% เราจึงใช้ **SMOTE** เพื่อลด Bias ของโมเดล ทำให้ค่า **Recall (การจดจำลูกค้า)** เพิ่มขึ้นอย่างมีนัยสำคัญ
+*   **Parameter Optimization:** ใช้ **GridSearchCV** เพื่อพิสูจน์ว่าพารามิเตอร์ที่เลือกใช้นั้นดีที่สุดผ่านการทดลองซ้ำ (Cross-Validation) ไม่ใช่การสุ่มเลือก
 
 ---
 
