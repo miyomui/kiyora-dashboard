@@ -11,7 +11,7 @@
 | **Home** | แนะนำระบบ, System Architecture Diagram, ทีมผู้พัฒนา |
 | **Supervised Learning** | ทำนายว่าลูกค้าจะเลือกใช้ Kiyora หรือไม่ + เปรียบเทียบ 5 โมเดล |
 | **Unsupervised Learning** | K-Means Clustering แบ่ง Customer Persona 3 กลุ่ม + PCA Visualization |
-| **Business Insights** | สรุปข้อมูลเชิงลึกและข้อเสนอแนะเชิงกลยุทธ์ |
+| **Business Insights** | Demographic Profile (เพศ/อายุ/รายได้/ผิว/จังหวัด/อาชีพ) + Dashboard 4 กราฟ (Brand Market Share, Skin Concerns, Cleansing Types, Feature Importance) จากข้อมูลจริง |
 
 ---
 
@@ -36,7 +36,6 @@
 ---
 
 ## 📂 โครงสร้างโปรเจกต์
-
 
 ├── api/
 │   └── main.py                    # FastAPI endpoints
@@ -121,6 +120,8 @@ clean.csv
 | `GET` | `/` | Health check |
 | `POST` | `/predict` | ทำนายว่าลูกค้าจะเลือก Kiyora |
 | `GET` | `/model-comparison` | ผลเปรียบเทียบโมเดลทั้ง 5 ตัว (จาก .pkl จริง) |
+| `GET` | `/unsupervised` | ผล Clustering + PCA + Anomaly Detection |
+| `GET` | `/insights` | Demographic Profile + Business Dashboard (ข้อมูลจริง) |
 
 ---
 
