@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kiyora Project Summary</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;700;900&family=Mitr:wght@400;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary: #f43f5e;
+            --secondary: #0d9488;
+            --dark: #0f172a;
+            --light: #f8fafc;
+            --accent: #fb7185;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-print-color-adjust: exact;
+        }
+
+        body {
+            font-family: 'Kanit', sans-serif;
+            background: #e2e8f0;
+            margin: 0;
+            padding: 20px;
+            color: var(--dark);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 4px solid var(--primary);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-weight: 900;
+            font-size: 38px;
+            margin: 0;
+            color: var(--primary);
+            letter-spacing: -1px;
+        }
+
+        .header p {
+            font-size: 20px;
+            font-weight: 700;
+            margin: 10px 0 0;
+            color: var(--secondary);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--light);
+            padding: 20px;
+            border-radius: 15px;
+            border-left: 5px solid var(--primary);
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            font-size: 18px;
+            margin-top: 0;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .badge {
+            background: var(--primary);
+            color: white;
+            padding: 2px 10px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        ul {
+            padding-left: 20px;
+            margin: 10px 0;
+        }
+
+        li {
+            margin-bottom: 8px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .highlight {
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #64748b;
+            border-top: 1px dashed #cbd5e1;
+            padding-top: 20px;
+        }
+
+        .tech-tag {
+            display: inline-block;
+            background: #cbd5e1;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            margin: 2px;
+            font-weight: bold;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .container {
+                box-shadow: none;
+                width: 100%;
+                max-width: 100%;
+                border: 1px solid #eee;
+            }
+
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>🚨 สำคัญ ไม่อ่านไม่ได้! 🚨</h1>
+            <p>สรุปโปรเจกต์ KIYORA ฉบับเข้าใจง่ายเว่อ (อ่าน 5 นาที คุยรู้เรื่องทั้งกลุ่ม)</p>
+        </div>
+
+        <div class="card" style="border-left-color: #0f172a; background: #f1f5f9;">
+            <h2>🎯 โปรเจกต์นี้คืออะไร? (The Goal)</h2>
+            <p style="font-size: 14px; line-height: 1.6;">
+                เรานำข้อมูล <span class="highlight">แบบสอบถามจริง 82 คน</span> มาทำระบบ AI วิเคราะห์การตลาดให้แบรนด์
+                <b>Kiyora</b> เพื่อดูว่าใครมีโอกาสเป็นลูกค้าเรา และลูกค้าแบ่งเป็นกลุ่มไหนบ้าง โดยสร้างเป็น Web Dashboard
+                สวยๆ ให้ผู้บริหารดูข้อมูลและตัดสินใจได้ทันที
+            </p>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h2>🌐 4 เมนูหลักบนหน้าเว็บ</h2>
+                <ul>
+                    <li><b>1. Home:</b> โชว์โครงสร้างระบบ (Architecture) และทีมงาน</li>
+                    <li><b>2. Supervised:</b> <span class="highlight">หน้าไฮไลท์!</span> ใช้ทายผลรายคนว่า
+                        "จะซื้อเราไหม?" พร้อมตารางเปรียบเทียบ AI 5 ตัว</li>
+                    <li><b>3. Unsupervised:</b> แบ่งกลุ่มลูกค้าเป็น 3 สไตล์ (Persona) พร้อมกราฟจุดๆ (PCA) ให้เห็นภาพชัดๆ
+                    </li>
+                    <li><b>4. Insights:</b> Dashboard กราฟสรุปตลาด เช่น ยี่ห้อไหนครองตลาด, ปัญหาผิวที่คนกังวลเยอะสุด
+                    </li>
+                </ul>
+            </div>
+
+            <div class="card" style="border-left-color: var(--secondary);">
+                <h2>🧠 เบื้องหลังความฉลาด (AI Pipeline)</h2>
+                <ul>
+                    <li><b>Data:</b> ใช้ <code>clean.csv</code> เป็นฐานข้อมูลหลัก</li>
+                    <li><b>Split:</b> แบ่งข้อมูลเป็น <span class="highlight">Train 70% / Test 30%</span> (มาตรฐานสากล)
+                    </li>
+                    <li><b>SMOTE:</b> เนื่องจากคนใช้ Kiyora มีน้อย AI เลยอาจจะ "มองข้าม"
+                        เราจึงใช้เทคนิคนี้สร้างข้อมูลจำลองให้ AI เรียนรู้ได้สมดุลขึ้น</li>
+                    <li><b>GridSearchCV:</b> ให้คอมพิวเตอร์ลองผิดลองถูกหาค่าที่ดีที่สุดให้เราเองอัตโนมัติ</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card" style="border-left-color: #e11d48;">
+            <h2>🏆 ทำไมเลือก Logistic Regression? (ต้องตอบอาจารย์ให้ได้!)</h2>
+            <p style="font-size: 14px;">
+                แม้บางตัวจะทายแม่น (Accuracy) สูงกว่า แต่เราเลือกตัวนี้เพราะมีค่า <span class="highlight">Recall
+                    สูงที่สุด (ประมาณ 50-80%)</span> <br>
+                <b>เหตุผล:</b> ในทางธุรกิจ การ "หาลูกค้าให้เจอ" (Recall) สำคัญกว่าการทายแม่นแต่พลาดลูกค้าตัวจริงไปเลย
+            </p>
+        </div>
+
+        <div class="card" style="border-left-color: #7c3aed;">
+            <h2>📁 โครงสร้างไฟล์ (กันหลงทาง)</h2>
+            <div style="display: flex; gap: 20px; font-size: 12px;">
+                <div>
+                    <p><b>📂 src/ (สมอง)</b></p>
+                    <ul>
+                        <li><code>supervised_train.py</code>: สั่งสอน AI</li>
+                        <li><code>model_comparison.py</code>: สรุปเกรด AI ส่งไปหน้าเว็บ</li>
+                        <li><code>unsupervised_analysis.py</code>: จัดกลุ่มลูกค้า</li>
+                    </ul>
+                </div>
+                <div>
+                    <p><b>📂 frontend/ (หน้าตา)</b></p>
+                    <ul>
+                        <li><code>app/supervised/</code>: หน้าทำนายผล</li>
+                        <li><code>app/insights/</code>: หน้ากราฟ Dashboard</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="border-left-color: #059669;">
+            <h2>🚀 สถานะปัจจุบัน (Deployment)</h2>
+            <p style="font-size: 14px;">
+                ✅ <b>Backend (Render):</b> ออนไลน์แล้ว (ถ้ารีเฟรชนานหน่อยคือเครื่องมันหลับอยู่ ไม่ต้องตกใจ)<br>
+                ✅ <b>Frontend (Vercel):</b> ออนไลน์แล้ว เข้าผ่านมือถือได้เลย!<br>
+                ✅ <b>Database (SQLite):</b> เก็บประวัติการทายผลไว้ในไฟล์ <code>kiyora_logs.db</code>
+            </p>
+        </div>
+
+        <div class="footer">
+            <p>
+                <span class="tech-tag">Next.js 15</span>
+                <span class="tech-tag">FastAPI</span>
+                <span class="tech-tag">Scikit-Learn</span>
+                <span class="tech-tag">Tailwind CSS</span>
+                <span class="tech-tag">Pandas</span>
+            </p>
+            <p><b>Project by:</b> เจ (Dev/ML) • แพท (BA/Data) • เนย (Frontend)</p>
+            <p style="margin-top: 10px; font-weight: bold;">✨ สู้ๆ นะพวกเรา พรีเซนต์ให้ปัง! ✨</p>
+        </div>
+    </div>
+
+    <div class="no-print" style="text-align: center; margin-top: 20px;">
+        <button onclick="window.print()"
+            style="padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-family: 'Kanit'; font-weight: bold;">
+            🖨️ คลิกเพื่อสั่งปริ้นใส่กระดาษ
+        </button>
+    </div>
+
+</body </html>

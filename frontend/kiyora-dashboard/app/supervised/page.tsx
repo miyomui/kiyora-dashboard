@@ -113,8 +113,14 @@ export default function SupervisedPage() {
         return r.json();
       })
       .then((data: ModelData) => {
-        setModelData(data);
-        setUsingFallback(false);
+        if (data.testSize === 17) {
+          // Render backend is still serving old 80/20 data, reject it and use correct 70/30 fallback
+          setModelData(FALLBACK_DATA);
+          setUsingFallback(true);
+        } else {
+          setModelData(data);
+          setUsingFallback(false);
+        }
       })
       .catch(() => {
         setModelData(FALLBACK_DATA);
