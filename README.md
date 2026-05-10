@@ -42,6 +42,7 @@
 
 ## 📂 โครงสร้างโปรเจกต์
 
+```text
 ├── api/
 │   └── main.py                    # FastAPI endpoints
 ├── frontend/
@@ -62,6 +63,7 @@
 │   └── kiyora_logs.db             # ฐานข้อมูลเก็บประวัติการทำนาย
 ├── requirements.txt
 └── README.md
+```
 
 ---
 
