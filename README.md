@@ -2,6 +2,11 @@
 
 ระบบวิเคราะห์การตลาดอัจฉริยะสำหรับแบรนด์ **Kiyora** พัฒนาด้วยเทคนิค Machine Learning ครบวงจร (End-to-End AI System) ตามข้อกำหนดโครงการ AIE 322, 323, 324, 325
 
+### 🔗 Live Links
+- **Website:** [https://kiyora-dashboard.vercel.app](https://kiyora-dashboard.vercel.app)
+- **API (Backend):** [https://kiyora-dashboard.onrender.com](https://kiyora-dashboard.onrender.com)
+- **GitHub Repository:** [https://github.com/miyomui/kiyora-dashboard](https://github.com/miyomui/kiyora-dashboard)
+
 ---
 
 ## 🌟 ฟีเจอร์หลัก
@@ -39,20 +44,22 @@
 
 ├── api/
 │   └── main.py                    # FastAPI endpoints
+├── frontend/
+│   └── kiyora-dashboard/          # Next.js Web Application (React + Recharts)
 ├── src/
-│   ├── database.py                # SQLite Persistence Layer [NEW]
+│   ├── database.py                # SQLite Persistence Layer
 │   ├── supervised_train.py        # ฝึกสอนโมเดลทั้ง 5 ตัว
 │   ├── supervised_evaluate.py     # เปรียบเทียบประสิทธิภาพโมเดล
 │   ├── model_comparison.py        # ฟังก์ชันสำหรับ /model-comparison API
 │   ├── predict.py                 # ฟังก์ชันทำนายผล (ใช้กับ API)
 │   ├── process_data.py            # เตรียมและทำความสะอาดข้อมูล
-│   └── unsupervised_analysis.py   # K-Means + PCA
+│   └── unsupervised_analysis.py   # Clustering + PCA (Comparative Persona Analysis)
 ├── models/
-│   ├── logistic_regression.pkl    # โมเดลหลัก (ใช้กับ API)
+│   ├── logistic_regression.pkl    # โมเดลหลัก (Recall สูงสุด)
 │   └── ...
 ├── data/
-│   ├── clean.csv                  # ข้อมูลที่ผ่านการเตรียมแล้ว
-│   └── kiyora_logs.db             # ฐานข้อมูลเก็บประวัติทำนาย [NEW]
+│   ├── clean.csv                  # ข้อมูลแบบสอบถามจริง (82 respondents)
+│   └── kiyora_logs.db             # ฐานข้อมูลเก็บประวัติการทำนาย
 ├── requirements.txt
 └── README.md
 
