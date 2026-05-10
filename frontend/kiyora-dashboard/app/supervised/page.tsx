@@ -162,10 +162,69 @@ export default function SupervisedPage() {
   return (
     <div className="space-y-10 pb-20">
 
-      {/* Header */}
-      <section>
-        <h1 className="text-3xl font-bold text-slate-800">วิเคราะห์และทำนายผล</h1>
-        <p className="mt-2 text-slate-400 font-medium">ทำนายพฤติกรรมการเลือกใช้แบรนด์ด้วยระบบ AI</p>
+      {/* Dark Hero Section (Premium Theme) */}
+      <section className="relative bg-[#0f172a] rounded-[2.5rem] p-8 sm:p-12 overflow-hidden shadow-2xl border border-slate-800">
+        {/* Glow effect background */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-rose-500/10 blur-[120px] rounded-full -mr-40 -mt-40" />
+        <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-teal-500/10 blur-[100px] rounded-full -ml-20 -mb-20" />
+
+        <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+          <div className="max-w-2xl">
+            {/* Badge */}
+            <motion.div 
+              className="inline-flex items-center gap-2 bg-rose-500/10 border border-rose-500/20 px-3 py-1 rounded-full mb-6"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+            >
+              <div className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse" />
+              <span className="text-[10px] font-black text-rose-300 uppercase tracking-[0.2em]">Supervised Learning Mode</span>
+            </motion.div>
+
+            <motion.h1 
+              className="text-4xl sm:text-5xl font-black text-white leading-[1.1] tracking-tight"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+            >
+              การทำนายพฤติกรรม <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-300 to-emerald-400">
+                & วิเคราะห์โอกาสการซื้อ
+              </span>
+            </motion.h1>
+
+            <motion.p 
+              className="mt-6 text-slate-400 font-medium text-lg max-w-xl leading-relaxed"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              ใช้ขุมพลังของ AI ในการวิเคราะห์ปัจจัยต่างๆ เพื่อคาดการณ์ความเป็นไปได้ที่ลูกค้าจะเลือกแบรนด์ Kiyora พร้อมรับคำแนะนำเชิงกลยุทธ์แบบ Real-time
+            </motion.p>
+          </div>
+
+          {/* Glassmorphism Stats Cards */}
+          <div className="flex flex-wrap gap-4">
+            <motion.div 
+              className="bg-white/5 backdrop-blur-md border border-white/10 p-6 rounded-[2rem] min-w-[160px] flex-1 lg:flex-none shadow-xl"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.3 }}
+            >
+              <p className="text-3xl font-black text-white mb-1">{modelData.trainSize}</p>
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-tight">จำนวนข้อมูล <br />ที่ใช้สอน (Train)</p>
+            </motion.div>
+
+            <motion.div 
+              className="bg-white/5 backdrop-blur-md border border-white/10 p-6 rounded-[2rem] min-w-[160px] flex-1 lg:flex-none shadow-xl"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.4 }}
+            >
+              <p className="text-3xl font-black text-teal-400 mb-1">{modelData.testSize}</p>
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-tight">จำนวนข้อมูล <br />ที่ใช้ทดสอบ (Test)</p>
+            </motion.div>
+          </div>
+        </div>
       </section>
 
       {/* Indicators Panel — values from selected model via API */}
