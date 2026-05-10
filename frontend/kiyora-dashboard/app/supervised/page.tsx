@@ -47,37 +47,37 @@ interface ModelData {
 
 // Fallback: real values from supervised_evaluate.py (used when API is unavailable)
 const FALLBACK_DATA: ModelData = {
-  trainSize: 65,
-  testSize: 17,
+  trainSize: 57,
+  testSize: 25,
   models: [
     { 
       name: "Logistic Regression", 
-      train: { accuracy: 0.8154, precision: 0.3333, recall: 0.60, f1: 0.4286 },
-      test:  { accuracy: 0.7647, precision: 0.25,   recall: 0.50, f1: 0.3333 },
+      train: { accuracy: 0.739, precision: 0.304, recall: 0.875, f1: 0.452 },
+      test:  { accuracy: 0.823, precision: 0.400, recall: 1.000, f1: 0.571 },
       selected: true  
     },
     { 
       name: "SVM",                 
-      train: { accuracy: 0.8462, precision: 0.40, recall: 0.60, f1: 0.48 },
-      test:  { accuracy: 0.8235, precision: 0.3333, recall: 0.50, f1: 0.40 },
+      train: { accuracy: 0.739, precision: 0.304, recall: 0.875, f1: 0.452 },
+      test:  { accuracy: 0.680, precision: 0.222, recall: 0.667, f1: 0.333 },
       selected: false 
     },
     { 
       name: "Random Forest",       
       train: { accuracy: 1.0, precision: 1.0, recall: 1.0, f1: 1.0 },
-      test:  { accuracy: 0.8235, precision: 0.00, recall: 0.00, f1: 0.00 },
+      test:  { accuracy: 0.840, precision: 0.333, recall: 0.333, f1: 0.333 },
       selected: false 
     },
     { 
       name: "Decision Tree",       
       train: { accuracy: 1.0, precision: 1.0, recall: 1.0, f1: 1.0 },
-      test:  { accuracy: 0.7647, precision: 0.00, recall: 0.00, f1: 0.00 },
+      test:  { accuracy: 0.720, precision: 0.167, recall: 0.333, f1: 0.222 },
       selected: false 
     },
     { 
       name: "KNN",                 
-      train: { accuracy: 0.8769, precision: 0.00, recall: 0.00, f1: 0.00 },
-      test:  { accuracy: 0.8824, precision: 0.00, recall: 0.00, f1: 0.00 },
+      train: { accuracy: 0.877, precision: 0.00, recall: 0.00, f1: 0.00 },
+      test:  { accuracy: 0.680, precision: 0.00, recall: 0.00, f1: 0.00 },
       selected: false 
     },
   ],
