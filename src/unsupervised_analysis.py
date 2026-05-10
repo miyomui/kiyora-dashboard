@@ -7,7 +7,7 @@ from sklearn.preprocessing import StandardScaler
 import json
 import os
 
-def run_unsupervised_analysis(file_path="data/cleaned_data.csv"):
+def run_unsupervised_analysis(file_path="data/clean.csv"):
     """
     Performs unsupervised learning tasks: Clustering, PCA, Anomaly Detection.
     Returns a dictionary of results for the API.
@@ -57,30 +57,89 @@ def run_unsupervised_analysis(file_path="data/cleaned_data.csv"):
     # 6. Persona Generation (Cluster Profiles)
     cluster_profiles = df.groupby('cluster')[features].mean().round(2)
     
-    # Add human-friendly persona names based on characteristics
+    # Add human-friendly persona names based on comparative analysis
+    # Calculate overall mean to find each cluster's distinguishing traits
+    overall_mean = df[features].mean()
+
+    # Define persona archetypes with signature features (ordered by priority)
+    persona_defs = [
+        {
+            "key": "price",
+            "check": lambda p, om: p['is_price_sensitive'] - om['is_price_sensitive'],
+            "name": "The Smart Budgeter",
+            "description": "กลุ่มลูกค้าที่เน้นความคุ้มค่าและราคาเป็นหลัก มักตัดสินใจจากโปรโมชั่น",
+        },
+        {
+            "key": "influence",
+            "check": lambda p, om: p['influence_score'] - om['influence_score'],
+            "name": "The Derma-Influenced Seeker",
+            "description": "กลุ่มลูกค้าที่ได้รับอิทธิพลจากแพทย์และผู้เชี่ยวชาญ ให้ความสำคัญกับผิวบอบบางและความสะอาดเชิงลึก",
+        },
+        {
+            "key": "allround",
+            "check": lambda p, om: p['concern_count'] - om['concern_count'],
+            "name": "The All-Round Skincare Enthusiast",
+            "description": "กลุ่มลูกค้าที่ใส่ใจทุกด้าน มีความกังวลเรื่องผิวหลายประเด็น และต้องการผลิตภัณฑ์ที่ตอบโจทย์รอบด้าน",
+        },
+        {
+            "key": "gentle",
+            "check": lambda p, om: p['sensitive_skin_score'] - om['sensitive_skin_score'],
+            "name": "The Gentle Skin Enthusiast",
+            "description": "กลุ่มผิวแพ้ง่ายที่เน้นความอ่อนโยนเป็นพิเศษ และพิจารณาส่วนประกอบที่ไม่มีสารก่อการแพ้",
+        },
+        {
+            "key": "acne",
+            "check": lambda p, om: p['acne_friendly_score'] - om['acne_friendly_score'],
+            "name": "The Acne-Focused Seeker",
+            "description": "กลุ่มลูกค้าที่กังวลเรื่องสิวเป็นหลัก ให้ความสำคัญกับความสะอาดและการผ่านการทดสอบทางการแพทย์",
+        },
+    ]
+
+    # Score each cluster for each persona archetype
+    cluster_scores = {}  # {cluster_id: {persona_key: score}}
+    for i, profile in cluster_profiles.iterrows():
+        cluster_scores[i] = {}
+        for pdef in persona_defs:
+            cluster_scores[i][pdef["key"]] = pdef["check"](profile, overall_mean)
+
+    # Assign personas greedily: best-fit first, no duplicates
+    used_keys = set()
+    assignments = {}  # cluster_id -> persona_def
+
+    for _ in range(len(cluster_profiles)):
+        best_score = -999
+        best_cluster = None
+        best_def = None
+        for i in cluster_profiles.index:
+            if i in assignments:
+                continue
+            for pdef in persona_defs:
+                if pdef["key"] in used_keys:
+                    continue
+                score = cluster_scores[i][pdef["key"]]
+                if score > best_score:
+                    best_score = score
+                    best_cluster = i
+                    best_def = pdef
+        if best_cluster is not None and best_def is not None:
+            assignments[best_cluster] = best_def
+            used_keys.add(best_def["key"])
+
     personas = []
     for i, profile in cluster_profiles.iterrows():
-        # Heuristic for naming
-        name = f"Segment {i+1}"
-        description = ""
-        
-        if profile['acne_friendly_score'] > 0.7 or profile['acne_score'] > 1.5:
-            name = "The Acne-Focused Seeker"
-            description = "กลุ่มลูกค้าที่กังวลเรื่องสิวเป็นหลัก ให้ความสำคัญกับความสะอาดและการผ่านการทดสอบทางการแพทย์"
-        elif profile['is_price_sensitive'] > 0.8:
-            name = "The Smart Budgeter"
-            description = "กลุ่มลูกค้าที่เน้นความคุ้มค่าและราคาเป็นหลัก มักตัดสินใจจากโปรโมชั่น"
-        elif profile['sensitive_skin_score'] > 0.7:
-            name = "The Gentle Skin Enthusiast"
-            description = "กลุ่มผิวแพ้ง่ายที่เน้นความอ่อนโยนเป็นพิเศษ และพิจารณาส่วนประกอบที่ไม่มีสารก่อการแพ้"
-        else:
-            name = "The Balanced Consumer"
-            description = "กลุ่มลูกค้าทั่วไปที่มีความกังวลสมดุลในหลายด้าน พิจารณาทั้งคุณภาพและภาพลักษณ์แบรนด์"
+        pdef = assignments.get(i, {
+            "name": f"Segment {i+1}",
+            "description": "กลุ่มลูกค้าทั่วไป"
+        })
+        # Pick top 4 features for this cluster
+        sorted_feats = profile[likert_cols].sort_values(ascending=False)
+        top_features = {k: round(float(v), 2) for k, v in sorted_feats.head(4).items()}
 
         personas.append({
             "id": int(i),
-            "name": name,
-            "description": description,
+            "name": pdef["name"],
+            "description": pdef["description"],
+            "top_features": top_features,
             "stats": profile.to_dict()
         })
 
