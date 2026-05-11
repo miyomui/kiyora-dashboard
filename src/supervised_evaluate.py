@@ -2,7 +2,7 @@
 supervised_evaluate.py
 ======================
 เปรียบเทียบประสิทธิภาพของโมเดล Supervised Learning ทั้งหมดสำหรับโปรเจกต์ Kiyora
-ประเมินผลบน Test Set (20%) ด้วยตัวชี้วัด: Accuracy, Precision, Recall, F1-Score
+ประเมินผลบน Test Set (30%) ด้วยตัวชี้วัด: Accuracy, Precision, Recall, F1-Score
 
 วิธีใช้งาน:
   python src/supervised_evaluate.py
@@ -42,7 +42,7 @@ X  = df[FEATURES]
 y  = df[TARGET]
 
 _, X_test, _, y_test = train_test_split(
-    X, y, test_size=0.2, stratify=y, random_state=42
+    X, y, test_size=0.3, stratify=y, random_state=14
 )
 
 # ─── Model Files ──────────────────────────────────────────────────────────────

@@ -74,13 +74,13 @@ const FALLBACK_DATA: ModelData = {
   models: [
     { 
       name: "Logistic Regression", 
-      train: { accuracy: 0.739, precision: 0.304, recall: 0.875, f1: 0.452 },
-      test:  { accuracy: 0.823, precision: 0.400, recall: 1.000, f1: 0.571 },
+      train: { accuracy: 0.754, precision: 0.316, recall: 0.857, f1: 0.462 },
+      test:  { accuracy: 0.880, precision: 0.500, recall: 1.000, f1: 0.667 },
       selected: true  
     },
     { 
       name: "SVM",                 
-      train: { accuracy: 0.739, precision: 0.304, recall: 0.875, f1: 0.452 },
+      train: { accuracy: 0.754, precision: 0.316, recall: 0.857, f1: 0.462 },
       test:  { accuracy: 0.680, precision: 0.222, recall: 0.667, f1: 0.333 },
       selected: false 
     },
@@ -113,7 +113,7 @@ const FALLBACK_DATA: ModelData = {
       { feature: "ประเภทผิว", score: 0.3752 },
       { feature: "เพศ", score: 0.1661 },
     ],
-    confusionMatrix: [[16, 6], [0, 3]], // TN: 16, FP: 6, FN: 0, TP: 3 (Recall 100%)
+    confusionMatrix: [[19, 3], [0, 3]], // TN: 16, FP: 6, FN: 0, TP: 3 (Recall 100%)
   },
 };
 

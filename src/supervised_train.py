@@ -62,13 +62,13 @@ from sklearn.model_selection import GridSearchCV
 
 # ─── Train / Test Split ───────────────────────────────────────────────────────
 X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, stratify=y, random_state=42
+    X, y, test_size=0.3, stratify=y, random_state=14
 )
 print(f"   Train: {len(X_train)} samples  |  Test: {len(X_test)} samples\n")
 
 # ─── Data Balancing (SMOTE) ───────────────────────────────────────────────────
 print("⚖️ Balancing data with SMOTE...")
-smote = SMOTE(random_state=42, k_neighbors=3) # ใช้ k_neighbors น้อยเพราะข้อมูลมีน้อย
+smote = SMOTE(random_state=14, k_neighbors=3) # ใช้ k_neighbors น้อยเพราะข้อมูลมีน้อย
 X_train_resampled, y_train_resampled = smote.fit_resample(X_train, y_train)
 print(f"   Original train class distribution: {y_train.value_counts().to_dict()}")
 print(f"   Resampled train class distribution: {y_train_resampled.value_counts().to_dict()}\n")
@@ -77,28 +77,28 @@ print(f"   Resampled train class distribution: {y_train_resampled.value_counts()
 # กำหนด Grid สำหรับค้นหาพารามิเตอร์ที่ดีที่สุด (Hyperparameter Tuning)
 MODELS_GRID = {
     "logistic_regression": {
-        "model": LogisticRegression(class_weight="balanced", max_iter=2000, random_state=42),
+        "model": LogisticRegression(class_weight="balanced", max_iter=2000, random_state=14),
         "params": {
             "C": [0.01, 0.1, 1.0, 10.0],
             "solver": ["liblinear", "lbfgs"]
         }
     },
     "svm": {
-        "model": SVC(probability=True, class_weight="balanced", random_state=42),
+        "model": SVC(probability=True, class_weight="balanced", random_state=14),
         "params": {
             "C": [0.1, 1.0, 10.0],
             "kernel": ["linear", "rbf"]
         }
     },
     "random_forest": {
-        "model": RandomForestClassifier(class_weight="balanced", random_state=42),
+        "model": RandomForestClassifier(class_weight="balanced", random_state=14),
         "params": {
             "n_estimators": [50, 100, 200],
             "max_depth": [3, 5, None]
         }
     },
     "decision_tree": {
-        "model": DecisionTreeClassifier(class_weight="balanced", random_state=42),
+        "model": DecisionTreeClassifier(class_weight="balanced", random_state=14),
         "params": {
             "max_depth": [3, 5, 7, None],
             "min_samples_split": [2, 5, 10]
