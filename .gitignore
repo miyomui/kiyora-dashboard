@@ -111,8 +111,10 @@ desktop.ini
 *.swo
 
 # ── Project specific ─────────────────────────────────────────────────────────
-# Raw / unprocessed data (keep only clean.csv)
+# Raw / unprocessed data
 data/*.csv
+data/*.db
+data/*.json
 !data/clean.csv
 
 # Generated files
@@ -122,3 +124,4 @@ scratch/
 # Agent / AI assistant cache
 .agent/
 .gemini/
+.vscode/

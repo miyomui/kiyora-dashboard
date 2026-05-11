@@ -32,12 +32,13 @@ interface Persona {
   id: number;
   name: string;
   description: string;
+  strategy?: string;
   stats: Record<string, number>;
 }
 
 interface ClusterPoint {
-  pca_1: number;
-  pca_2: number;
+  tsne_1: number;
+  tsne_2: number;
   cluster: number;
   anomaly_score: number;
 }
@@ -52,6 +53,11 @@ interface UnsupervisedData {
   correlation: CorrelationData;
   clusters: ClusterPoint[];
   personas: Persona[];
+  evaluation_metrics?: {
+    kmeans_inertia: number;
+    kmeans_silhouette: number;
+    pca_explained_variance: number[];
+  };
   summary: {
     total_count: number;
     anomaly_count: number;
@@ -61,48 +67,701 @@ interface UnsupervisedData {
 
 /* ── Fallback Data (used when API is unavailable) ──────────────────── */
 const FALLBACK_DATA: UnsupervisedData = {
-  summary: { total_count: 82, anomaly_count: 5, cluster_counts: { "0": 26, "1": 15, "2": 41 } },
-  clusters: [
-    { pca_1: -1.36, pca_2: 3.91, cluster: 0, anomaly_score: 1 },
-    { pca_1: 1.29, pca_2: 1.03, cluster: 2, anomaly_score: 0 },
-    { pca_1: -2.01, pca_2: 1.11, cluster: 0, anomaly_score: 0 },
-    { pca_1: 0.13, pca_2: -1.05, cluster: 2, anomaly_score: 0 },
-    { pca_1: -1.32, pca_2: 0.79, cluster: 0, anomaly_score: 0 },
-    { pca_1: -0.72, pca_2: -0.60, cluster: 1, anomaly_score: 0 },
-    { pca_1: 2.22, pca_2: -0.67, cluster: 2, anomaly_score: 0 },
-    { pca_1: -1.10, pca_2: 1.40, cluster: 0, anomaly_score: 0 },
-  ],
-  personas: [
-    {
-      id: 0,
-      name: "The Derma-Influenced Seeker",
-      description: "กลุ่มลูกค้าที่ได้รับอิทธิพลจากแพทย์และผู้เชี่ยวชาญ ให้ความสำคัญกับผิวบอบบางและความสะอาดเชิงลึก",
-      stats: { "deep_cleansing_score": 0.98, "sensitive_skin_score": 0.96, "eye_friendly_score": 0.86, "low_friction_score": 0.78, "acne_friendly_score": 0.73 }
+  "stats": {
+    "deep_cleansing_score": {
+      "count": 82.0,
+      "mean": 0.9,
+      "std": 0.23,
+      "min": 0.0,
+      "25%": 1.0,
+      "50%": 1.0,
+      "75%": 1.0,
+      "max": 1.0
     },
-    {
-      id: 1,
-      name: "The Smart Budgeter",
-      description: "กลุ่มลูกค้าที่เน้นความคุ้มค่าและราคาเป็นหลัก มักตัดสินใจจากโปรโมชั่น",
-      stats: { "moisturizing_score": 0.8, "low_friction_score": 0.71, "is_price_sensitive": 0.87, "eye_friendly_score": 0.7, "oil_control_score": 0.68 }
+    "acne_friendly_score": {
+      "count": 82.0,
+      "mean": 0.83,
+      "std": 0.25,
+      "min": 0.0,
+      "25%": 0.75,
+      "50%": 1.0,
+      "75%": 1.0,
+      "max": 1.0
     },
-    {
-      id: 2,
-      name: "The All-Round Skincare Enthusiast",
-      description: "กลุ่มลูกค้าที่ใส่ใจทุกด้าน มีความกังวลเรื่องผิวหลายประเด็น และต้องการผลิตภัณฑ์ที่ตอบโจทย์รอบด้าน",
-      stats: { "eye_friendly_score": 0.96, "acne_friendly_score": 0.95, "oil_control_score": 0.95, "sensitive_skin_score": 0.95, "deep_cleansing_score": 0.94 }
+    "sensitive_skin_score": {
+      "count": 82.0,
+      "mean": 0.85,
+      "std": 0.29,
+      "min": 0.0,
+      "25%": 1.0,
+      "50%": 1.0,
+      "75%": 1.0,
+      "max": 1.0
+    },
+    "moisturizing_score": {
+      "count": 82.0,
+      "mean": 0.78,
+      "std": 0.29,
+      "min": 0.0,
+      "25%": 0.5,
+      "50%": 1.0,
+      "75%": 1.0,
+      "max": 1.0
+    },
+    "oil_control_score": {
+      "count": 82.0,
+      "mean": 0.77,
+      "std": 0.25,
+      "min": 0.0,
+      "25%": 0.5,
+      "50%": 0.75,
+      "75%": 1.0,
+      "max": 1.0
     }
-  ],
-  correlation: {
-    columns: ["deep_cleansing", "acne_friendly", "sensitive_skin", "moisturizing", "oil_control"],
-    values: [
-      [1.0, 0.27, 0.42, 0.11, -0.02],
-      [0.27, 1.0, 0.29, 0.09, 0.39],
-      [0.42, 0.29, 1.0, 0.05, 0.15],
-      [0.11, 0.09, 0.05, 1.0, 0.37],
-      [-0.02, 0.39, 0.15, 0.37, 1.0]
+  },
+  "correlation": {
+    "columns": [
+      "deep_cleansing_score",
+      "acne_friendly_score",
+      "sensitive_skin_score",
+      "moisturizing_score",
+      "oil_control_score"
+    ],
+    "values": [
+      [
+        1.0,
+        0.27,
+        0.42,
+        0.11,
+        -0.02
+      ],
+      [
+        0.27,
+        1.0,
+        0.29,
+        0.09,
+        0.39
+      ],
+      [
+        0.42,
+        0.29,
+        1.0,
+        0.05,
+        0.15
+      ],
+      [
+        0.11,
+        0.09,
+        0.05,
+        1.0,
+        0.37
+      ],
+      [
+        -0.02,
+        0.39,
+        0.15,
+        0.37,
+        1.0
+      ]
     ]
   },
-  stats: {}
+  "clusters": [
+    {
+      "pca_1": -0.5765107139014658,
+      "pca_2": -2.3987653052872946,
+      "cluster": 2,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": 1.4665130597727698,
+      "pca_2": 0.4607211055590071,
+      "cluster": 0,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": -0.008802041152548318,
+      "pca_2": -1.5329512173746875,
+      "cluster": 2,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": 0.18202265835963893,
+      "pca_2": 0.6244441380062435,
+      "cluster": 0,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": -0.0838636288043368,
+      "pca_2": -0.9685567686177784,
+      "cluster": 2,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": 0.18202265835963893,
+      "pca_2": 0.6244441380062435,
+      "cluster": 0,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": 1.4665130597727698,
+      "pca_2": 0.4607211055590071,
+      "cluster": 0,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": -0.9914700569807374,
+      "pca_2": -2.096415003638866,
+      "cluster": 2,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": -2.0103557894517863,
+      "pca_2": -1.2292049219871632,
+      "cluster": 2,
+      "anomaly_score": 1
+    },
+    {
+      "pca_1": 1.0127098456845696,
+      "pca_2": -0.1032080119515367,
+      "cluster": 0,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": 0.6358258724478393,
+      "pca_2": 1.1883732555167872,
+      "cluster": 0,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": -1.3683540302174677,
+      "pca_2": -0.8048337361705419,
+      "cluster": 2,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": 0.445001172935652,
+      "pca_2": -0.9690220998641437,
+      "cluster": 0,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": 0.8988043870238523,
+      "pca_2": -0.40509298235359986,
+      "cluster": 0,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": 1.4665130597727698,
+      "pca_2": 0.4607211055590071,
+      "cluster": 0,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": 1.0127098456845696,
+      "pca_2": -0.1032080119515367,
+      "cluster": 0,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": -1.1775293307052803,
+      "pca_2": 1.3525616192103889,
+      "cluster": 1,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": 1.4665130597727698,
+      "pca_2": 0.4607211055590071,
+      "cluster": 0,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": -0.4829160634446517,
+      "pca_2": 0.13445315254958698,
+      "cluster": 0,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": 1.4665130597727698,
+      "pca_2": 0.4607211055590071,
+      "cluster": 0,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": -0.5376668428925371,
+      "pca_2": -1.5324858861283222,
+      "cluster": 2,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": 1.4665130597727698,
+      "pca_2": 0.4607211055590071,
+      "cluster": 0,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": -0.5376668428925371,
+      "pca_2": -1.5324858861283222,
+      "cluster": 2,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": 0.8988043870238523,
+      "pca_2": -0.40509298235359986,
+      "cluster": 0,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": -1.4267402082639122,
+      "pca_2": 0.43726878544438047,
+      "cluster": 2,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": -1.8972188319574566,
+      "pca_2": -0.8043684049241767,
+      "cluster": 2,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": -1.5953964463725148,
+      "pca_2": -1.5315552236355918,
+      "cluster": 2,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": 1.4665130597727698,
+      "pca_2": 0.4607211055590071,
+      "cluster": 0,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": -0.4988229718836084,
+      "pca_2": -0.6662064669693499,
+      "cluster": 2,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": -0.029112849356451396,
+      "pca_2": 0.6983822700601308,
+      "cluster": 0,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": -2.634311368825573,
+      "pca_2": 2.456502202870485,
+      "cluster": 1,
+      "anomaly_score": 1
+    },
+    {
+      "pca_1": 0.8988043870238523,
+      "pca_2": -0.40509298235359986,
+      "cluster": 0,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": -4.5837404920429945,
+      "pca_2": 2.1302342498610645,
+      "cluster": 1,
+      "anomaly_score": 1
+    },
+    {
+      "pca_1": -1.8424680525095711,
+      "pca_2": 0.8625706337537323,
+      "cluster": 1,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": 0.08479260930426577,
+      "pca_2": 1.000267240462194,
+      "cluster": 0,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": 0.445001172935652,
+      "pca_2": -0.9690220998641437,
+      "cluster": 0,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": 1.4665130597727698,
+      "pca_2": 0.4607211055590071,
+      "cluster": 0,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": 1.4665130597727698,
+      "pca_2": 0.4607211055590071,
+      "cluster": 0,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": 1.0127098456845696,
+      "pca_2": -0.1032080119515367,
+      "cluster": 0,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": 0.5589066315963692,
+      "pca_2": -0.6671371294620805,
+      "cluster": 0,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": 1.4665130597727698,
+      "pca_2": 0.4607211055590071,
+      "cluster": 0,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": -0.5579776510964403,
+      "pca_2": 0.6988476013064959,
+      "cluster": 0,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": -1.8036241815006422,
+      "pca_2": 1.7288500529127044,
+      "cluster": 1,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": -0.5765107139014658,
+      "pca_2": -2.3987653052872946,
+      "cluster": 2,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": 1.4665130597727698,
+      "pca_2": 0.4607211055590071,
+      "cluster": 0,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": -0.859800036681382,
+      "pca_2": 1.426034420017911,
+      "cluster": 1,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": -1.1027493612753856,
+      "pca_2": -0.10134668696607566,
+      "cluster": 2,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": -4.752396730151597,
+      "pca_2": 0.1614102407810923,
+      "cluster": 1,
+      "anomaly_score": 1
+    },
+    {
+      "pca_1": 0.48384504394458067,
+      "pca_2": -0.10274268070517142,
+      "cluster": 0,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": -2.3510220460456566,
+      "pca_2": -1.3682975224347207,
+      "cluster": 2,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": -0.5765107139014658,
+      "pca_2": -2.3987653052872946,
+      "cluster": 2,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": 0.5385958233924661,
+      "pca_2": 1.5641963579727376,
+      "cluster": 0,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": -1.2544485715567504,
+      "pca_2": -0.5029487657684787,
+      "cluster": 2,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": 0.445001172935652,
+      "pca_2": -0.9690220998641437,
+      "cluster": 0,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": 0.937648258032781,
+      "pca_2": 0.46118643680537236,
+      "cluster": 0,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": -1.1775293307052803,
+      "pca_2": 1.3525616192103889,
+      "cluster": 1,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": -1.465584079272841,
+      "pca_2": -0.4290106337145917,
+      "cluster": 2,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": 1.4665130597727698,
+      "pca_2": 0.4607211055590071,
+      "cluster": 0,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": -0.916408469328949,
+      "pca_2": -2.660809452395775,
+      "cluster": 2,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": -1.066531644632526,
+      "pca_2": -1.532020554881957,
+      "cluster": 2,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": 0.18202265835963893,
+      "pca_2": 0.6244441380062435,
+      "cluster": 0,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": -0.1589252164561253,
+      "pca_2": -0.4041623198608694,
+      "cluster": 2,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": 1.4665130597727698,
+      "pca_2": 0.4607211055590071,
+      "cluster": 0,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": 0.4087834562927922,
+      "pca_2": 0.4616517680517376,
+      "cluster": 0,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": 1.0127098456845696,
+      "pca_2": -0.1032080119515367,
+      "cluster": 0,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": 0.0681171996989218,
+      "pca_2": 0.32255916760418035,
+      "cluster": 0,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": 1.4665130597727698,
+      "pca_2": 0.4607211055590071,
+      "cluster": 0,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": 0.030041829856380348,
+      "pca_2": -0.6666717982157152,
+      "cluster": 2,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": 0.030041829856380348,
+      "pca_2": -0.6666717982157152,
+      "cluster": 2,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": 1.4665130597727698,
+      "pca_2": 0.4607211055590071,
+      "cluster": 0,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": 1.0127098456845696,
+      "pca_2": -0.1032080119515367,
+      "cluster": 0,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": 1.4665130597727698,
+      "pca_2": 0.4607211055590071,
+      "cluster": 0,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": -0.1589252164561253,
+      "pca_2": -0.4041623198608694,
+      "cluster": 2,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": 1.4665130597727698,
+      "pca_2": 0.4607211055590071,
+      "cluster": 0,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": 0.937648258032781,
+      "pca_2": 0.46118643680537236,
+      "cluster": 0,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": -2.8066030055327347,
+      "pca_2": 3.3967197540833443,
+      "cluster": 1,
+      "anomaly_score": 1
+    },
+    {
+      "pca_1": 0.445001172935652,
+      "pca_2": -0.9690220998641437,
+      "cluster": 0,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": 0.030041829856380348,
+      "pca_2": -0.6666717982157152,
+      "cluster": 2,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": 1.4665130597727698,
+      "pca_2": 0.4607211055590071,
+      "cluster": 0,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": -0.29209136393246443,
+      "pca_2": 2.291848507930518,
+      "cluster": 1,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": 1.4665130597727698,
+      "pca_2": 0.4607211055590071,
+      "cluster": 0,
+      "anomaly_score": 0
+    },
+    {
+      "pca_1": 1.4665130597727698,
+      "pca_2": 0.4607211055590071,
+      "cluster": 0,
+      "anomaly_score": 0
+    }
+  ],
+  "personas": [
+    {
+      "id": 0,
+      "name": "The Acne-Focused Seeker",
+      "description": "กลุ่มลูกค้าที่กังวลเรื่องสิวเป็นหลัก ให้ความสำคัญกับความสะอาดและการผ่านการทดสอบทางการแพทย์",
+      "strategy": "ยิง Ads เจาะกลุ่มคนเป็นสิว โดยนำเสนอผลลัพธ์ Before/After ที่เน้นเรื่องสิวลดลงหรือสิวไม่ขึ้นเพิ่ม",
+      "top_features": {
+        "acne_friendly_score": 0.97,
+        "deep_cleansing_score": 0.95,
+        "sensitive_skin_score": 0.95,
+        "eye_friendly_score": 0.93
+      },
+      "stats": {
+        "deep_cleansing_score": 0.95,
+        "acne_friendly_score": 0.97,
+        "sensitive_skin_score": 0.95,
+        "no_irritant_score": 0.82,
+        "hypoallergenic_score": 0.89,
+        "moisturizing_score": 0.88,
+        "low_friction_score": 0.87,
+        "nourishment_score": 0.8,
+        "eye_friendly_score": 0.93,
+        "oil_control_score": 0.91,
+        "acne_score": 1.17,
+        "influence_score": 1.06,
+        "is_price_sensitive": 0.7,
+        "concern_count": 3.0
+      }
+    },
+    {
+      "id": 1,
+      "name": "The Smart Budgeter",
+      "description": "กลุ่มลูกค้าที่เน้นความคุ้มค่าและราคาเป็นหลัก มักตัดสินใจจากโปรโมชั่น",
+      "strategy": "จัดแคมเปญโปรโมชั่น ลดแลกแจกแถม หรือทำ Bundle Set เพื่อดึงดูดการซื้อซ้ำ",
+      "top_features": {
+        "oil_control_score": 0.78,
+        "eye_friendly_score": 0.78,
+        "moisturizing_score": 0.75,
+        "low_friction_score": 0.73
+      },
+      "stats": {
+        "deep_cleansing_score": 0.5,
+        "acne_friendly_score": 0.62,
+        "sensitive_skin_score": 0.25,
+        "no_irritant_score": 0.7,
+        "hypoallergenic_score": 0.7,
+        "moisturizing_score": 0.75,
+        "low_friction_score": 0.73,
+        "nourishment_score": 0.67,
+        "eye_friendly_score": 0.78,
+        "oil_control_score": 0.78,
+        "acne_score": 1.25,
+        "influence_score": 0.8,
+        "is_price_sensitive": 0.8,
+        "concern_count": 3.0
+      }
+    },
+    {
+      "id": 2,
+      "name": "The Derma-Influenced Seeker",
+      "description": "กลุ่มลูกค้าที่ได้รับอิทธิพลจากแพทย์และผู้เชี่ยวชาญ ให้ความสำคัญกับผิวบอบบางและความสะอาดเชิงลึก",
+      "strategy": "เน้นการโฆษณาที่ใช้ผู้เชี่ยวชาญทางผิวหนัง (Dermatologist) ยืนยันผลลัพธ์และความปลอดภัย",
+      "top_features": {
+        "deep_cleansing_score": 0.96,
+        "sensitive_skin_score": 0.92,
+        "eye_friendly_score": 0.83,
+        "low_friction_score": 0.79
+      },
+      "stats": {
+        "deep_cleansing_score": 0.96,
+        "acne_friendly_score": 0.65,
+        "sensitive_skin_score": 0.92,
+        "no_irritant_score": 0.7,
+        "hypoallergenic_score": 0.68,
+        "moisturizing_score": 0.6,
+        "low_friction_score": 0.79,
+        "nourishment_score": 0.43,
+        "eye_friendly_score": 0.83,
+        "oil_control_score": 0.5,
+        "acne_score": 1.33,
+        "influence_score": 1.16,
+        "is_price_sensitive": 0.6,
+        "concern_count": 2.76
+      }
+    }
+  ],
+  "evaluation_metrics": {
+    "kmeans_inertia": 231.16,
+    "kmeans_silhouette": 0.3466,
+    "pca_explained_variance": [
+      0.3738,
+      0.2498
+    ]
+  },
+  "summary": {
+    "total_count": 82,
+    "anomaly_count": 5,
+    "cluster_counts": {
+      "0": 47,
+      "2": 25,
+      "1": 10
+    }
+  }
 };
 
 export default function UnsupervisedPage() {
@@ -110,7 +769,7 @@ export default function UnsupervisedPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [usingFallback, setUsingFallback] = useState(false);
-  const [activeTab, setActiveTab] = useState<"clusters" | "correlation" | "personas">("personas");
+  const [activeTab, setActiveTab] = useState<"clusters" | "correlation" | "personas" | "stats">("personas");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -198,6 +857,7 @@ export default function UnsupervisedPage() {
           { id: "personas", name: "Customer Personas", icon: Users },
           { id: "clusters", name: "Clustering Visualization", icon: Target },
           { id: "correlation", name: "Behavior Correlation", icon: TrendingUp },
+          { id: "stats", name: "Descriptive Stats & Metrics", icon: Grid },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -241,7 +901,17 @@ export default function UnsupervisedPage() {
                 </div>
                 
                 <h3 className="text-2xl font-bold text-slate-800 mb-2">{persona.name}</h3>
-                <p className="text-slate-400 text-sm leading-relaxed mb-8">{persona.description}</p>
+                <p className="text-slate-400 text-sm leading-relaxed mb-6">{persona.description}</p>
+                
+                {persona.strategy && (
+                  <div className="mb-8 p-4 bg-indigo-50 border border-indigo-100 rounded-2xl">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Zap className="h-4 w-4 text-indigo-500" />
+                      <span className="text-xs font-bold text-indigo-700 uppercase">Strategic Recommendation</span>
+                    </div>
+                    <p className="text-indigo-800 text-sm font-medium">{persona.strategy}</p>
+                  </div>
+                )}
                 
                 <div className="space-y-4">
                   <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">คุณลักษณะหลัก</div>
@@ -306,8 +976,8 @@ export default function UnsupervisedPage() {
               <div className="h-[500px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
-                    <XAxis type="number" dataKey="pca_1" name="PC1" hide />
-                    <YAxis type="number" dataKey="pca_2" name="PC2" hide />
+                    <XAxis type="number" dataKey="tsne_1" name="t-SNE 1" hide />
+                    <YAxis type="number" dataKey="tsne_2" name="t-SNE 2" hide />
                     <Tooltip 
                       cursor={{ strokeDasharray: '3 3' }} 
                       content={({ active, payload }) => {
@@ -345,11 +1015,10 @@ export default function UnsupervisedPage() {
                 <Info className="h-6 w-6 text-teal-500" />
               </div>
               <div>
-                <h4 className="font-bold text-teal-800 mb-2">เข้าใจผลลัพธ์ของ PCA</h4>
+                <h4 className="font-bold text-teal-800 mb-2">เข้าใจผลลัพธ์ของ t-SNE</h4>
                 <p className="text-teal-700/70 text-sm leading-relaxed">
-                  PCA ช่วยลดมิติของข้อมูลจากหลายสิบตัวแปรให้เหลือเพียง 2 แกนที่สำคัญที่สุด 
-                  เพื่อให้เราเห็นการเกาะกลุ่ม (Clustering) ของลูกค้าได้ด้วยตาเปล่า 
-                  จุดที่อยู่ใกล้กันหมายถึงลูกค้าที่มีพฤติกรรมและทัศนคติคล้ายคลึงกัน
+                  กราฟนี้ใช้เทคนิค t-SNE (t-Distributed Stochastic Neighbor Embedding) เพื่อลดมิติข้อมูลและแสดงผลเป็น 2 มิติ
+                  ช่วยให้เห็นพฤติกรรมลูกค้าที่เกาะกลุ่มกัน (Clusters) ตามความคล้ายคลึงของคำตอบ
                 </p>
               </div>
             </div>
@@ -406,6 +1075,73 @@ export default function UnsupervisedPage() {
                     })}
                   </div>
                 ))}
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {activeTab === "stats" && (
+          <motion.div
+            key="stats"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="space-y-6"
+          >
+            {data.evaluation_metrics && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col justify-center">
+                  <div className="text-slate-400 text-xs font-bold uppercase mb-2">K-Means Silhouette Score</div>
+                  <div className="text-3xl font-bold text-indigo-600">{data.evaluation_metrics.kmeans_silhouette.toFixed(3)}</div>
+                  <div className="text-xs text-slate-400 mt-2">คุณภาพการจัดกลุ่ม (เข้าใกล้ 1 ยิ่งดี)</div>
+                </div>
+                <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col justify-center">
+                  <div className="text-slate-400 text-xs font-bold uppercase mb-2">K-Means Inertia (Elbow)</div>
+                  <div className="text-3xl font-bold text-teal-600">{data.evaluation_metrics.kmeans_inertia.toFixed(2)}</div>
+                  <div className="text-xs text-slate-400 mt-2">ระยะห่างภายในกลุ่ม (ค่าน้อยยิ่งดี)</div>
+                </div>
+                <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col justify-center">
+                  <div className="text-slate-400 text-xs font-bold uppercase mb-2">PCA Explained Variance</div>
+                  <div className="text-3xl font-bold text-rose-500">
+                    {((data.evaluation_metrics.pca_explained_variance[0] + data.evaluation_metrics.pca_explained_variance[1]) * 100).toFixed(1)}%
+                  </div>
+                  <div className="text-xs text-slate-400 mt-2">ครอบคลุมข้อมูล 2 มิติ (PC1 + PC2)</div>
+                </div>
+              </div>
+            )}
+
+            <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm overflow-hidden">
+              <div className="mb-8">
+                <h3 className="text-2xl font-bold text-slate-800">Descriptive Statistics</h3>
+                <p className="text-slate-400 text-sm mt-1">สถิติพื้นฐานของตัวแปรหลัก (ค่าเฉลี่ย, ส่วนเบี่ยงเบนมาตรฐาน)</p>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-slate-100">
+                      <th className="p-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Feature</th>
+                      <th className="p-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-right">Mean</th>
+                      <th className="p-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-right">Std Dev</th>
+                      <th className="p-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-right">Min</th>
+                      <th className="p-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-right">Max</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {Object.keys(data.stats).map((col) => {
+                      const statsObj = data.stats[col];
+                      if(typeof statsObj !== 'object') return null;
+                      return (
+                        <tr key={col} className="border-b border-slate-50 last:border-0 hover:bg-slate-50">
+                          <td className="p-4 font-medium text-slate-600 text-sm">{col}</td>
+                          <td className="p-4 text-right text-slate-500 text-sm">{statsObj.mean?.toFixed(2) || "-"}</td>
+                          <td className="p-4 text-right text-slate-500 text-sm">{statsObj.std?.toFixed(2) || "-"}</td>
+                          <td className="p-4 text-right text-slate-500 text-sm">{statsObj.min?.toFixed(2) || "-"}</td>
+                          <td className="p-4 text-right text-slate-500 text-sm">{statsObj.max?.toFixed(2) || "-"}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
             </div>
           </motion.div>

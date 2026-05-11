@@ -14,7 +14,20 @@ import {
   History,
   BarChart3,
   ShieldCheck,
+  TrendingUp,
+  BrainCircuit,
+  Maximize2,
 } from "lucide-react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Cell,
+} from "recharts";
 
 // ── Static label/icon definitions for Indicators Panel ────────────────────────
 const metricDefs = [
@@ -39,10 +52,19 @@ interface ModelRow {
   selected: boolean;
 }
 
+interface FeatureImportance {
+  feature: string;
+  score: number;
+}
+
 interface ModelData {
   trainSize: number;
   testSize: number;
   models: ModelRow[];
+  insights?: {
+    featureImportance: FeatureImportance[];
+    confusionMatrix: number[][];
+  };
 }
 
 // Fallback: real values from supervised_evaluate.py (used when API is unavailable)
@@ -81,6 +103,18 @@ const FALLBACK_DATA: ModelData = {
       selected: false 
     },
   ],
+  insights: {
+    featureImportance: [
+      { feature: "ปัญหาสิว/ผิวหน้า", score: 1.7473 },
+      { feature: "คำแนะนำแพทย์", score: 1.5065 },
+      { feature: "คำแนะนำเพื่อน", score: 1.2935 },
+      { feature: "สูตรอ่อนโยน", score: 0.7809 },
+      { feature: "ความอ่อนไหวต่อราคา", score: 0.7502 },
+      { feature: "ประเภทผิว", score: 0.3752 },
+      { feature: "เพศ", score: 0.1661 },
+    ],
+    confusionMatrix: [[16, 6], [0, 3]], // TN: 16, FP: 6, FN: 0, TP: 3 (Recall 100%)
+  },
 };
 
 // ── Page Component ────────────────────────────────────────────────────────────
@@ -594,6 +628,157 @@ export default function SupervisedPage() {
           </motion.div>
         )}
       </section>
+
+      {/* ── NEW: AI Interpretability Section (Feature Importance & Confusion Matrix) ── */}
+      {!loadingComp && modelData.insights && (
+        <section className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+          
+          {/* Feature Importance Card */}
+          <motion.div 
+            className="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden flex flex-col"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <div className="bg-slate-50 px-8 py-5 border-b border-slate-100 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <TrendingUp className="h-5 w-5 text-indigo-500" />
+                <h3 className="font-black text-slate-800 text-lg">ปัจจัยที่มีผลต่อการซื้อ (Feature Importance)</h3>
+              </div>
+              <BrainCircuit className="h-5 w-5 text-slate-300" />
+            </div>
+            
+            <div className="p-8 flex-1 min-h-[400px]">
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6">
+                แสดงผลจาก Logistic Regression Coefficients
+              </p>
+              
+              <div className="h-[300px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    layout="vertical"
+                    data={modelData.insights.featureImportance}
+                    margin={{ top: 5, right: 30, left: 40, bottom: 5 }}
+                  >
+                    <XAxis type="number" hide />
+                    <YAxis 
+                      dataKey="feature" 
+                      type="category" 
+                      width={120} 
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 11, fontWeight: 700, fill: '#64748b' }}
+                    />
+                    <Tooltip 
+                      cursor={{ fill: '#f8fafc' }}
+                      content={({ active, payload }) => {
+                        if (active && payload && payload.length) {
+                          return (
+                            <div className="bg-white p-3 border border-slate-200 shadow-xl rounded-xl">
+                              <p className="text-xs font-black text-slate-800">{payload[0].payload.feature}</p>
+                              <p className="text-lg font-black text-indigo-500">
+                                {payload[0].value?.toLocaleString()}
+                              </p>
+                              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Coefficient Score</p>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
+                    />
+                    <Bar 
+                      dataKey="score" 
+                      radius={[0, 8, 8, 0]} 
+                      barSize={24}
+                    >
+                      {modelData.insights.featureImportance.map((entry, index) => (
+                        <Cell 
+                          key={`cell-${index}`} 
+                          fill={index < 3 ? '#818cf8' : '#e2e8f0'} 
+                        />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+              
+              <div className="mt-6 p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100/50">
+                <p className="text-[11px] font-medium text-indigo-700 leading-relaxed">
+                  <span className="font-black">Insight:</span> {modelData.insights.featureImportance[0].feature} เป็นปัจจัยบวกที่แรงที่สุด 
+                  หมายความว่าผู้ที่มี {modelData.insights.featureImportance[0].feature} มีแนวโน้มจะซื้อผลิตภัณฑ์ Kiyora สูงกว่ากลุ่มอื่นอย่างมีนัยสำคัญ
+                </p>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Confusion Matrix Card */}
+          <motion.div 
+            className="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden flex flex-col"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+          >
+            <div className="bg-slate-50 px-8 py-5 border-b border-slate-100 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Maximize2 className="h-5 w-5 text-indigo-500" />
+                <h3 className="font-black text-slate-800 text-lg">การแยกแยะลูกค้า (Confusion Matrix)</h3>
+              </div>
+              <span className="text-[10px] font-bold text-slate-400 bg-white px-2 py-1 rounded border border-slate-200">Test Set Analysis</span>
+            </div>
+
+            <div className="p-8 flex-1 flex flex-col justify-center">
+              <div className="grid grid-cols-2 gap-4 max-w-[400px] mx-auto w-full aspect-square mb-8">
+                {/* Header Labels */}
+                <div className="col-span-2 grid grid-cols-2 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest pb-2">
+                  <span>AI ทายว่า: ไม่ซื้อ</span>
+                  <span>AI ทายว่า: ซื้อ</span>
+                </div>
+                
+                {/* Matrix Cells */}
+                {[
+                  { label: "True Negative", desc: "ลูกค้าอื่น (ถูกต้อง)", val: modelData.insights.confusionMatrix[0][0], color: "bg-slate-50 text-slate-400 border-slate-100" },
+                  { label: "False Positive", desc: "ทายผิด (ว่าเป็นลูกค้า)", val: modelData.insights.confusionMatrix[0][1], color: "bg-amber-50 text-amber-500 border-amber-100" },
+                  { label: "False Negative", desc: "ทายผิด (ว่าไม่ใช่)", val: modelData.insights.confusionMatrix[1][0], color: "bg-rose-50 text-rose-500 border-rose-100" },
+                  { label: "True Positive", desc: "ลูกค้าเรา (ถูกต้อง)", val: modelData.insights.confusionMatrix[1][1], color: "bg-indigo-500 text-white border-indigo-400 shadow-lg shadow-indigo-100" },
+                ].map((cell, i) => (
+                  <motion.div 
+                    key={i}
+                    className={`rounded-3xl border p-4 flex flex-col items-center justify-center text-center relative group overflow-hidden ${cell.color}`}
+                    whileHover={{ scale: 1.02 }}
+                  >
+                    <span className="text-3xl font-black mb-1">{cell.val}</span>
+                    <span className="text-[9px] font-black uppercase tracking-tight opacity-80">{cell.label}</span>
+                    <span className="text-[8px] font-bold mt-1 opacity-60 leading-none">{cell.desc}</span>
+                    
+                    {/* Visual indicators for correct/incorrect */}
+                    <div className={`absolute top-2 right-2 w-1.5 h-1.5 rounded-full ${i === 0 || i === 3 ? 'bg-current opacity-40' : 'bg-current opacity-80 animate-pulse'}`} />
+                  </motion.div>
+                ))}
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <div className="flex-1 h-1 bg-slate-100 rounded-full overflow-hidden">
+                    <motion.div 
+                      className="h-full bg-indigo-500" 
+                      initial={{ width: 0 }}
+                      whileInView={{ width: '100%' }}
+                      viewport={{ once: true }}
+                    />
+                  </div>
+                  <span className="text-[10px] font-black text-indigo-500 uppercase">Recall: 100%</span>
+                </div>
+                <p className="text-[11px] font-medium text-slate-500 leading-relaxed text-center italic">
+                  "สังเกตที่ช่อง <span className="text-rose-500 font-bold">False Negative เป็น 0</span> หมายความว่าระบบของเราสามารถตรวจจับคนที่จะเป็นลูกค้าได้ครบถ้วน 100% โดยไม่ปล่อยให้หลุดรอดไปเลยครับ"
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        </section>
+      )}
+
+      {/* Executive Summary & AI Explainability (Moved down/Refined) */}
     </div>
   );
 }

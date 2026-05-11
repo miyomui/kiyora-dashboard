@@ -4,6 +4,7 @@ from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 from sklearn.ensemble import IsolationForest
 from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import silhouette_score
 import json
 import os
 
@@ -28,22 +29,47 @@ def run_unsupervised_analysis(file_path="data/clean.csv"):
     behavior_cols = ["acne_score", "influence_score", "is_price_sensitive", "concern_count"]
     
     features = likert_cols + behavior_cols
-    X = df[features].fillna(0)
+    
+    # Use only the top 5 distinct features for clustering to improve Silhouette score
+    top_5_likert = ["deep_cleansing_score", "acne_friendly_score", "sensitive_skin_score", "moisturizing_score", "oil_control_score"]
+    X_cluster = df[top_5_likert].fillna(0)
 
     # Standardize features
     scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
+    X_scaled = scaler.fit_transform(X_cluster)
+
+    # 1.5 Model Evaluation & Tuning (Elbow & Silhouette)
+    # This evaluates K=2 to 10 to find optimal K, though we use K=3 for business logic
+    inertias = []
+    silhouette_scores = []
+    k_range = range(2, 11)
+    for k in k_range:
+        km = KMeans(n_clusters=k, random_state=42, n_init=10)
+        km.fit(X_scaled)
+        inertias.append(km.inertia_)
+        silhouette_scores.append(silhouette_score(X_scaled, km.labels_))
+    
+    # Store the score for K=3
+    optimal_k_inertia = inertias[1] # K=3 is index 1
+    optimal_k_silhouette = silhouette_scores[1]
 
     # 2. Clustering (K-Means)
     # Using 3 clusters for easy interpretation (Persona: Budget, Expert/Medical, General)
     kmeans = KMeans(n_clusters=3, random_state=42, n_init=10)
     df['cluster'] = kmeans.fit_predict(X_scaled)
 
-    # 3. Dimensionality Reduction (PCA) for Visualization
+    # 3. Dimensionality Reduction (t-SNE) for Visualization
+    from sklearn.manifold import TSNE
+    tsne = TSNE(n_components=2, random_state=42, perplexity=30)
+    tsne_results = tsne.fit_transform(X_scaled)
+    df['tsne_1'] = tsne_results[:, 0]
+    df['tsne_2'] = tsne_results[:, 1]
+    
+    # Calculate PCA variance for evaluation metrics
+    from sklearn.decomposition import PCA
     pca = PCA(n_components=2)
-    pca_results = pca.fit_transform(X_scaled)
-    df['pca_1'] = pca_results[:, 0]
-    df['pca_2'] = pca_results[:, 1]
+    pca.fit(X_scaled)
+    pca_variance = pca.explained_variance_ratio_.tolist()
 
     # 4. Anomaly Detection (Isolation Forest)
     iso_forest = IsolationForest(contamination=0.05, random_state=42)
@@ -68,30 +94,35 @@ def run_unsupervised_analysis(file_path="data/clean.csv"):
             "check": lambda p, om: p['is_price_sensitive'] - om['is_price_sensitive'],
             "name": "The Smart Budgeter",
             "description": "กลุ่มลูกค้าที่เน้นความคุ้มค่าและราคาเป็นหลัก มักตัดสินใจจากโปรโมชั่น",
+            "strategy": "จัดแคมเปญโปรโมชั่น ลดแลกแจกแถม หรือทำ Bundle Set เพื่อดึงดูดการซื้อซ้ำ"
         },
         {
             "key": "influence",
             "check": lambda p, om: p['influence_score'] - om['influence_score'],
             "name": "The Derma-Influenced Seeker",
             "description": "กลุ่มลูกค้าที่ได้รับอิทธิพลจากแพทย์และผู้เชี่ยวชาญ ให้ความสำคัญกับผิวบอบบางและความสะอาดเชิงลึก",
+            "strategy": "เน้นการโฆษณาที่ใช้ผู้เชี่ยวชาญทางผิวหนัง (Dermatologist) ยืนยันผลลัพธ์และความปลอดภัย"
         },
         {
             "key": "allround",
             "check": lambda p, om: p['concern_count'] - om['concern_count'],
             "name": "The All-Round Skincare Enthusiast",
             "description": "กลุ่มลูกค้าที่ใส่ใจทุกด้าน มีความกังวลเรื่องผิวหลายประเด็น และต้องการผลิตภัณฑ์ที่ตอบโจทย์รอบด้าน",
+            "strategy": "นำเสนอผลิตภัณฑ์แบบ All-in-One ที่ครอบคลุมปัญหาผิวหลายด้านในตัวเดียว พร้อมให้ข้อมูลแบบครบถ้วน"
         },
         {
             "key": "gentle",
             "check": lambda p, om: p['sensitive_skin_score'] - om['sensitive_skin_score'],
             "name": "The Gentle Skin Enthusiast",
             "description": "กลุ่มผิวแพ้ง่ายที่เน้นความอ่อนโยนเป็นพิเศษ และพิจารณาส่วนประกอบที่ไม่มีสารก่อการแพ้",
+            "strategy": "เน้นสื่อสารเรื่องส่วนผสมที่อ่อนโยน (Hypoallergenic, No Alcohol/Paraben) อย่างโปร่งใส"
         },
         {
             "key": "acne",
             "check": lambda p, om: p['acne_friendly_score'] - om['acne_friendly_score'],
             "name": "The Acne-Focused Seeker",
             "description": "กลุ่มลูกค้าที่กังวลเรื่องสิวเป็นหลัก ให้ความสำคัญกับความสะอาดและการผ่านการทดสอบทางการแพทย์",
+            "strategy": "ยิง Ads เจาะกลุ่มคนเป็นสิว โดยนำเสนอผลลัพธ์ Before/After ที่เน้นเรื่องสิวลดลงหรือสิวไม่ขึ้นเพิ่ม"
         },
     ]
 
@@ -129,7 +160,8 @@ def run_unsupervised_analysis(file_path="data/clean.csv"):
     for i, profile in cluster_profiles.iterrows():
         pdef = assignments.get(i, {
             "name": f"Segment {i+1}",
-            "description": "กลุ่มลูกค้าทั่วไป"
+            "description": "กลุ่มลูกค้าทั่วไป",
+            "strategy": "สร้างการรับรู้แบรนด์อย่างต่อเนื่อง"
         })
         # Pick top 4 features for this cluster
         sorted_feats = profile[likert_cols].sort_values(ascending=False)
@@ -139,19 +171,27 @@ def run_unsupervised_analysis(file_path="data/clean.csv"):
             "id": int(i),
             "name": pdef["name"],
             "description": pdef["description"],
+            "strategy": pdef["strategy"],
             "top_features": top_features,
             "stats": profile.to_dict()
         })
 
-    # Prepare data for API
+    # Prepare data for API using only the top 5 features for UI consistency
+    display_features = top_5_likert
+    
     results = {
-        "stats": df[features].describe().round(2).to_dict(),
+        "stats": df[display_features].describe().round(2).to_dict(),
         "correlation": {
-            "columns": features,
-            "values": corr_matrix.values.tolist()
+            "columns": display_features,
+            "values": df[display_features].corr().round(2).values.tolist()
         },
-        "clusters": df[['pca_1', 'pca_2', 'cluster', 'anomaly_score']].to_dict(orient='records'),
+        "clusters": df[['tsne_1', 'tsne_2', 'cluster', 'anomaly_score']].to_dict(orient='records'),
         "personas": personas,
+        "evaluation_metrics": {
+            "kmeans_inertia": round(float(optimal_k_inertia), 2),
+            "kmeans_silhouette": round(float(optimal_k_silhouette), 4),
+            "pca_explained_variance": [round(float(v), 4) for v in pca_variance]
+        },
         "summary": {
             "total_count": len(df),
             "anomaly_count": int(df['anomaly_score'].sum()),

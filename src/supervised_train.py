@@ -61,9 +61,8 @@ from imblearn.over_sampling import SMOTE
 from sklearn.model_selection import GridSearchCV
 
 # ─── Train / Test Split ───────────────────────────────────────────────────────
-# ทดลองปรับเปลี่ยนสัดส่วน (อาจารย์แนะนำ) จาก 80:20 เป็น 70:30 เพื่อดูผลลัพธ์
 X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.3, stratify=y, random_state=42
+    X, y, test_size=0.2, stratify=y, random_state=42
 )
 print(f"   Train: {len(X_train)} samples  |  Test: {len(X_test)} samples\n")
 
